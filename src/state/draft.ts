@@ -478,11 +478,6 @@ export function fillSlot(draft: Draft, slot: Slot, taste: TasteFn = NO_TASTE): D
   return { ...base, slots };
 }
 
-/** Switch a removed slot back on and let the engine fill it (same as fillSlot). */
-export function restoreSlot(draft: Draft, slot: Slot, taste: TasteFn = NO_TASTE): Draft {
-  return fillSlot(draft, slot, taste);
-}
-
 /**
  * "Change" → you picked a specific alternative for a slot. It becomes YOUR
  * pick (locked, so Shuffle leaves it alone) and the old piece is remembered as

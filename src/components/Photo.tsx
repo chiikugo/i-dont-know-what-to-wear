@@ -129,9 +129,12 @@ function PlatePhoto({ image, crop = FULL_BOX, alt, px = 300, eager = false, anch
   const width = pickThumbWidth((2 * px * photo.width) / Math.max(1, cropWidthPx), photo.width);
 
   // Narrow photos: the 2:3 frame pokes out past the photo's sides. Fill that
-  // margin with a soft, blurred copy of the same photo (no hard bands).
+  // margin with a soft, blurred copy of the same photo (no hard bands). The
+  // copy uses the very same file as the photo itself, so the browser
+  // downloads it once, not twice.
   const [fl, ft, fw, fh] = look.frame;
   const overhang = fl < -0.002 || fl + fw > 1.002;
+  const src = commonsThumb(photo, width);
 
   return (
     <div ref={ref} className={`photo photo-plate ${loaded ? "is-loaded" : ""} ${className}`} role="img" aria-label={alt}>
@@ -144,7 +147,7 @@ function PlatePhoto({ image, crop = FULL_BOX, alt, px = 300, eager = false, anch
               </filter>
             </defs>
             <image
-              href={commonsThumb(photo, pickThumbWidth(330, photo.width))}
+              href={src}
               x={fl * photo.width}
               y={ft * photo.height}
               width={fw * photo.width}
@@ -157,7 +160,7 @@ function PlatePhoto({ image, crop = FULL_BOX, alt, px = 300, eager = false, anch
         )}
         {near && (
           <image
-            href={commonsThumb(photo, width)}
+            href={src}
             width={photo.width}
             height={photo.height}
             preserveAspectRatio="none"

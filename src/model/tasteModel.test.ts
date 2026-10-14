@@ -3,13 +3,13 @@
  *
  * They check the *behaviour you'd expect from a learner*: liking things makes
  * similar things score higher, dismissing makes them score lower, the model is
- * a pure function of its event log, and the home page genuinely adapts.
+ * a pure function of its event log, and the home feed genuinely adapts.
  */
 import { describe, expect, it } from "vitest";
 import { CATALOG } from "../data/catalog";
 import { buildCrowdPrior } from "./crowd";
 import { featuresOf, optionFeatures } from "./features";
-import { buildHomeFeed } from "./recommend";
+import { headlineFor, rankLooks, rankPieces } from "./recommend";
 import {
   emptyState,
   explain,
@@ -124,12 +124,10 @@ describe("community prior", () => {
 describe("home recommendations", () => {
   const noDismissed = new Set<string>();
 
-  it("returns rails full of pieces from the right section", () => {
-    const feed = buildHomeFeed({ section: "womenswear", state: emptyState(), crowd: null, dismissed: noDismissed });
-    expect(feed.rails.length).toBeGreaterThanOrEqual(2);
-    for (const rail of feed.rails) {
-      for (const item of rail.items) expect(["womenswear", "unisex"]).toContain(item.piece.section);
-    }
+  it("ranks garments from the right section only", () => {
+    const pieces = rankPieces({ section: "womenswear", state: emptyState(), crowd: null, dismissed: noDismissed });
+    expect(pieces.length).toBeGreaterThan(10);
+    for (const item of pieces) expect(["womenswear", "unisex"]).toContain(item.piece.section);
   });
 
   it("adapts: after liking baggy street pieces, such pieces rise to the top", () => {
@@ -142,24 +140,34 @@ describe("home recommendations", () => {
     for (const p of liked.slice(0, 4)) s = learn(s, makeEvent("piece-keep", "menswear", featuresOf(p)));
     for (const p of liked.slice(0, 4)) s = learn(s, makeEvent("look-save", "menswear", featuresOf(p)));
 
-    const before = buildHomeFeed({ section: "menswear", state: emptyState(), crowd: null, dismissed: noDismissed });
-    const after = buildHomeFeed({ section: "menswear", state: s, crowd: null, dismissed: noDismissed });
+    const before = rankPieces({ section: "menswear", state: emptyState(), crowd: null, dismissed: noDismissed }).slice(0, 8);
+    const after = rankPieces({ section: "menswear", state: s, crowd: null, dismissed: noDismissed }).slice(0, 8);
 
     const score = (items: { piece: { fit: string; vibes: string[] } }[]) =>
       items.filter((i) => i.piece.fit === "baggy" || i.piece.vibes.includes("street")).length;
-    expect(score(after.rails[0].items)).toBeGreaterThan(score(before.rails[0].items));
+    expect(score(after)).toBeGreaterThan(score(before));
   });
 
   it("never recommends something the user dismissed", () => {
-    const first = buildHomeFeed({ section: "menswear", state: emptyState(), crowd: null, dismissed: noDismissed });
-    const victim = first.rails[0].items[0].piece.id;
-    const again = buildHomeFeed({ section: "menswear", state: emptyState(), crowd: null, dismissed: new Set([victim]) });
-    for (const rail of again.rails) expect(rail.items.map((i) => i.piece.id)).not.toContain(victim);
+    const first = rankPieces({ section: "menswear", state: emptyState(), crowd: null, dismissed: noDismissed });
+    const victim = first[0].piece.id;
+    const again = rankPieces({ section: "menswear", state: emptyState(), crowd: null, dismissed: new Set([victim]) });
+    expect(again.map((i) => i.piece.id)).not.toContain(victim);
   });
 
   it("filters by mood when asked", () => {
-    const feed = buildHomeFeed({ section: "menswear", state: emptyState(), crowd: null, dismissed: noDismissed, vibe: "edgy" });
-    for (const rail of feed.rails) for (const i of rail.items) expect(i.piece.vibes).toContain("edgy");
+    const pieces = rankPieces({ section: "menswear", state: emptyState(), crowd: null, dismissed: noDismissed, vibe: "edgy" });
+    expect(pieces.length).toBeGreaterThan(0);
+    for (const i of pieces) expect(i.piece.vibes).toContain("edgy");
+  });
+
+  it("invites you to pick until it has learned something, then names what it learned", () => {
+    expect(headlineFor(emptyState())).toMatch(/learn your taste/);
+    const maxMara = CATALOG.filter((p) => p.show === "maxmara-fw19");
+    let s = emptyState();
+    // Separate timestamps: events at the same moment count as ONE pick.
+    maxMara.forEach((p, i) => (s = learn(s, makeEvent("look-save", "womenswear", featuresOf(p), 1000 + i))));
+    expect(headlineFor(s)).toMatch(/^Leaning toward|^Still learning/);
   });
 
   it("builds option features that match piece features", () => {
@@ -188,19 +196,19 @@ describe("runway-aware taste", () => {
     for (const p of maxMara) s = learn(s, makeEvent("look-save", "womenswear", featuresOf(p)));
     expect(topFeatures(s, 10).likes.map(([f]) => f)).toContain("house:max-mara");
 
-    const before = buildHomeFeed({ section: "womenswear", state: emptyState(), crowd: null, dismissed: noDismissed });
-    const after = buildHomeFeed({ section: "womenswear", state: s, crowd: null, dismissed: noDismissed });
+    const before = rankLooks({ section: "womenswear", state: emptyState(), crowd: null, dismissed: noDismissed });
+    const after = rankLooks({ section: "womenswear", state: s, crowd: null, dismissed: noDismissed });
     const count = (looks: { look: { show: string } }[]) => looks.filter((l) => l.look.show === "maxmara-fw19").length;
-    expect(count(after.looks)).toBeGreaterThanOrEqual(count(before.looks));
-    expect(after.looks[0].look.show).toBe("maxmara-fw19");
+    expect(count(after)).toBeGreaterThanOrEqual(count(before));
+    expect(after[0].look.show).toBe("maxmara-fw19");
   });
 
-  it("fills the 'Off the runway' row with whole looks from the right section, at most two per show", () => {
+  it("ranks whole looks from the right section, at most two per show by default", () => {
     for (const section of ["womenswear", "menswear"] as const) {
-      const feed = buildHomeFeed({ section, state: emptyState(), crowd: null, dismissed: noDismissed });
-      expect(feed.looks.length, section).toBeGreaterThan(3);
+      const looks = rankLooks({ section, state: emptyState(), crowd: null, dismissed: noDismissed });
+      expect(looks.length, section).toBeGreaterThan(3);
       const perShow = new Map<string, number>();
-      for (const { look } of feed.looks) {
+      for (const { look } of looks) {
         expect([section, "unisex"]).toContain(look.section);
         perShow.set(look.show, (perShow.get(look.show) ?? 0) + 1);
       }
@@ -208,13 +216,10 @@ describe("runway-aware taste", () => {
     }
   });
 
-  it("keeps every rail varied: never two pieces from one photo", () => {
+  it("keeps the garment order varied: never two pieces from one photo", () => {
     for (const section of ["womenswear", "menswear"] as const) {
-      const feed = buildHomeFeed({ section, state: emptyState(), crowd: null, dismissed: noDismissed });
-      for (const rail of feed.rails) {
-        const looks = rail.items.map((i) => i.piece.look);
-        expect(new Set(looks).size, `${section} / ${rail.id}`).toBe(looks.length);
-      }
+      const looks = rankPieces({ section, state: emptyState(), crowd: null, dismissed: noDismissed }).map((i) => i.piece.look);
+      expect(new Set(looks).size, section).toBe(looks.length);
     }
   });
 });

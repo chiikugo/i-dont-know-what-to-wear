@@ -361,8 +361,3 @@ export function houseInfo(slug: string): { house: string; seasons: string } {
   return { house: shows[0].house, seasons: `${shows.length} ${shows[0].kind === "street" ? "fashion weeks" : "collections"}` };
 }
 
-/** "Michael Kors · Fall 2010 Ready-to-Wear" */
-export function showLabel(key: string | undefined): string {
-  const s = showOf(key);
-  return s.season ? `${s.house} · ${s.season}` : s.house;
-}

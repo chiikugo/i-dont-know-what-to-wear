@@ -97,18 +97,32 @@ export function stripTags(html: string): string {
   return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+/**
+ * Regular expressions are built once per tag name and reused: a feed has
+ * dozens of entries and each asks for the same ten or so tags, so building
+ * them fresh every time added up.
+ */
+const reCache = new Map<string, RegExp>();
+function cachedRe(key: string, build: () => RegExp): RegExp {
+  let re = reCache.get(key);
+  if (!re) reCache.set(key, (re = build()));
+  re.lastIndex = 0; // "g" expressions remember where they stopped — start over
+  return re;
+}
+
 /** The text inside the first <tag>…</tag> (namespaced tags like "dc:creator" work too). */
 function tagText(block: string, tag: string): string {
-  const m = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, "i").exec(block);
+  const m = cachedRe(`text:${tag}`, () => new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, "i")).exec(block);
   return m ? decodeEntities(m[1]).trim() : "";
 }
 
 /** Value of `attr` on the first <tag …> that also matches `extra` (if given). */
 function tagAttr(block: string, tag: string, attr: string, extra?: RegExp): string {
-  const re = new RegExp(`<${tag}\\b[^>]*>`, "gi");
+  const re = cachedRe(`open:${tag}`, () => new RegExp(`<${tag}\\b[^>]*>`, "gi"));
+  const attrRe = cachedRe(`attr:${attr}`, () => new RegExp(`\\b${attr}\\s*=\\s*("([^"]*)"|'([^']*)')`, "i"));
   for (const m of block.matchAll(re)) {
     if (extra && !extra.test(m[0])) continue;
-    const a = new RegExp(`\\b${attr}\\s*=\\s*("([^"]*)"|'([^']*)')`, "i").exec(m[0]);
+    const a = attrRe.exec(m[0]);
     if (a) return decodeEntities(a[2] ?? a[3] ?? "");
   }
   return "";
@@ -154,18 +168,22 @@ export function parseFeed(xml: string): FeedEntry[] {
     }
     for (const m of block.matchAll(/<category\b[^>]*\bterm\s*=\s*"([^"]+)"[^>]*\/?>/gi)) categories.push(decodeEntities(m[1]));
 
-    // Every HTML-ish field, decoded (Pinterest escapes its HTML inside <description>).
-    // Some feeds put a text-only <summary> first and the picture in <content>,
-    // so all of them are searched for an image.
-    const fields = ["content:encoded", "content", "description", "summary"].map((t) => decodeEntities(tagText(block, t))).filter(Boolean);
-    const body = fields.join(" ");
-    const summary = stripTags(decodeEntities(tagText(block, "description") || tagText(block, "summary")) || fields[0] || "");
+    // The short text fields (decoded — Pinterest escapes its HTML inside <description>).
+    const short = decodeEntities(tagText(block, "description") || tagText(block, "summary"));
+    // Every HTML-ish field, decoded. Some feeds put a text-only <summary> first
+    // and the picture in <content>, so all of them may be searched for an
+    // image. Built only when needed: full articles (<content:encoded>) are
+    // long, and most feeds name their picture in a <media:…> tag anyway.
+    let fieldsCache: string[] | null = null;
+    const fields = () =>
+      (fieldsCache ??= ["content:encoded", "content", "description", "summary"].map((t) => decodeEntities(tagText(block, t))).filter(Boolean));
+    const summary = stripTags(short || fields()[0] || "");
     const image =
       tagAttr(block, "media:thumbnail", "url") ||
       tagAttr(block, "media:content", "url", /medium\s*=\s*["']image["']|type\s*=\s*["']image\//i) ||
       tagAttr(block, "media:content", "url", /url\s*=\s*["'][^"']+\.(?:jpe?g|png|webp|gif)/i) ||
       tagAttr(block, "enclosure", "url", /type\s*=\s*["']image\//i) ||
-      (/<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/i.exec(body)?.[1] ?? "");
+      (/<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/i.exec(fields().join(" "))?.[1] ?? "");
 
     const author = stripTags(tagText(block, "dc:creator") || tagText(block, "name") || tagText(block, "author"));
     const videoId = tagText(block, "yt:videoId") || undefined;

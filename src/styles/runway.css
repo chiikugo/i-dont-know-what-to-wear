@@ -33,7 +33,6 @@
 }
 
 .runway-backdrop .photo {
-  animation: none;
   background: transparent;
 }
 
@@ -48,7 +47,10 @@
     linear-gradient(to bottom, rgba(13, 12, 11, 0.35), var(--stage) 92%);
 }
 
-/* The spotlight: a soft cone from the top. Position is animated in JS. */
+/* The spotlight: a soft cone from the top. Position is animated in JS.
+   It is soft because of its wide gradient stops — not a blur filter or a
+   blend mode, which made the browser redraw the whole stage on every frame of
+   the sway. Now the sway is a plain move the graphics card handles alone. */
 .runway-spot {
   position: absolute;
   top: -10%;
@@ -60,16 +62,17 @@
   background: conic-gradient(
     from 180deg at 50% 0%,
     transparent 0deg,
-    rgba(217, 181, 109, 0.0) 156deg,
-    rgba(255, 244, 220, 0.22) 175deg,
-    rgba(255, 244, 220, 0.26) 180deg,
-    rgba(255, 244, 220, 0.22) 185deg,
-    rgba(217, 181, 109, 0.0) 204deg,
+    rgba(217, 181, 109, 0) 150deg,
+    rgba(255, 244, 220, 0.07) 165deg,
+    rgba(255, 244, 220, 0.17) 174deg,
+    rgba(255, 244, 220, 0.2) 180deg,
+    rgba(255, 244, 220, 0.17) 186deg,
+    rgba(255, 244, 220, 0.07) 195deg,
+    rgba(217, 181, 109, 0) 210deg,
     transparent 360deg
   );
-  filter: blur(18px);
   pointer-events: none;
-  mix-blend-mode: screen;
+  will-change: transform, opacity;
 }
 
 .runway-content {
@@ -136,7 +139,6 @@
 }
 
 .runway-frame-photo .photo {
-  animation: none;
   background: var(--stage-2);
 }
 
@@ -288,9 +290,9 @@
   padding: clamp(20px, 3vw, 36px);
   border: 1px solid var(--stage-line);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--stage-2) 82%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  /* Nearly solid instead of frosted glass: a blur behind it had to be
+     recomputed on every frame the spotlight moved. */
+  background: color-mix(in srgb, var(--stage-2) 94%, transparent);
 }
 
 .runway-facts {

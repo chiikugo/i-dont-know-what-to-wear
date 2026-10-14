@@ -9,7 +9,6 @@
  *  TWEAK
  *    caption height     → .feed-card-caption (keep in step with CAPTION_H in feed/posts.ts)
  *    hover lift         → .feed-card:hover .feed-card-media
- *    the open-bar       → .feed-card-dwell + @keyframes feed-dwell
  *    the Pause button   → .feed-drift
  */
 
@@ -57,9 +56,10 @@
   overflow: hidden;
   border-radius: 3px;
   background: var(--paper-2);
-  transition:
-    transform 0.35s var(--ease-out),
-    box-shadow 0.35s var(--ease-out);
+  /* Only the lift is animated. Animating the shadow too meant redrawing the
+     picture on every frame of the hover — over and over as the wall drifts
+     under the mouse. The shadow simply appears with the lift. */
+  transition: transform 0.35s var(--ease-out);
 }
 
 .feed-card-media img {
@@ -148,19 +148,6 @@
   text-overflow: ellipsis;
 }
 
-.feed-card-opening {
-  display: none;
-  color: var(--accent-deep);
-}
-
-.feed-card.is-dwelling .feed-card-where {
-  display: none;
-}
-
-.feed-card.is-dwelling .feed-card-opening {
-  display: inline;
-}
-
 .feed-card-title {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -178,29 +165,6 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--muted);
-}
-
-/* The open-bar: fills while the pointer rests on the card. */
-.feed-card-dwell {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left;
-  pointer-events: none;
-}
-
-.feed-card.is-dwelling .feed-card-dwell {
-  animation: feed-dwell var(--dwell-ms, 1100ms) linear forwards;
-}
-
-@keyframes feed-dwell {
-  to {
-    transform: scaleX(1);
-  }
 }
 
 /* "Not for me" — in the caption corner, so it never covers a picture. */
@@ -263,9 +227,16 @@
 /* Loading placeholders. */
 .feed-card--skeleton {
   border-radius: 3px;
-  background: linear-gradient(110deg, var(--paper-2) 30%, var(--paper-3) 50%, var(--paper-2) 70%);
-  background-size: 200% 100%;
-  animation: photo-shimmer 1.6s linear infinite;
+  background: var(--paper-2);
+  /* A gentle breathing fade. Only opacity changes, which the browser can do
+     without repainting anything. */
+  animation: skeleton-breathe 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes skeleton-breathe {
+  from {
+    opacity: 0.55;
+  }
 }
 
 /* ── "Start a look with…" tiles ────────────────────────── */

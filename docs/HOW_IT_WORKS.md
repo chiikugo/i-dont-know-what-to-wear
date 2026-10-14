@@ -305,7 +305,7 @@ The home page is one wall of posts that never ends and slowly scrolls itself. On
   live posts   (rankLive)      ─┐      deal posts by the BEAT   place each post in the     draw only posts near the
   runway looks (rankLooks)      ├──►   live, look, live, piece, shortest column (all  ──►  screen; deal 24 more when
   garments     (rankPieces)     │      …; a new "cycle" when    positions known before     the bottom is in reach;
-  "Start with…" tiles          ─┘      everything was shown     any image loads)           hover → open
+  "Start with…" tiles          ─┘      everything was shown     any image loads)           click → open
 ```
 
 **The rhythm.** `BEAT` = `live, look, live, piece, live, look, prompt, live, piece, live, look, live, piece, live, look, piece` — 7 live posts, 4 runway looks, 4 garments and one "Start a look with…" tile in every 16. A queue that runs dry hands over to the next (`FALLBACK`). Only *future* posts follow your latest taste; what's on screen never reshuffles.
@@ -314,9 +314,13 @@ The home page is one wall of posts that never ends and slowly scrolls itself. On
 
 **Shortest column first.** Each card goes into the column filled least far down (a wide card into the neighbouring pair whose lower edge is highest). Height = width ÷ aspect + the 64 px caption. Because every shape is decided before any image arrives, the layout is computed — not measured — so the page can draw only the ~25 cards near the screen (`DRAW_ABOVE` 900 px, `DRAW_BELOW` 1,500 px) and run for hours without slowing down.
 
-**The drift** (`feed/useAutoScroll.ts`). Every animation frame adds `26 px/s × time` to a *fractional* position and scrolls there (keeping our own fraction is what makes a very slow scroll smooth). If the page is somewhere we didn't put it, the user scrolled: adopt their position and pause. It holds still for 4 s after a scroll, swipe or key, 2.2 s after the mouse moves over the posts, while a post is being hovered, while the tab is hidden, and from the start if the device asks for reduced motion. The Pause button's choice is remembered on the device.
+**The drift** (`feed/useAutoScroll.ts`). Every animation frame adds `26 px/s × time` to a *fractional* position and scrolls there (keeping our own fraction is what makes a very slow scroll smooth). If the page is somewhere we didn't put it, the user scrolled: adopt their position and pause. It holds still for 4 s after a scroll, swipe or key, 2.2 s after the mouse moves over the posts, while the tab is hidden, and from the start if the device asks for reduced motion. The Pause button's choice is remembered on the device.
 
-**Hover to open.** Real mouse movement onto a post starts a 1.1 s timer and a bar fills along the card's bottom edge (pure CSS). Moving off cancels; click opens at once. The browser also sends "mouse moved" events when the page scrolls under a still pointer — those have unchanged coordinates and are ignored, so the drift never opens a post by itself.
+**Click to open.** A post opens only on a click or tap — resting the mouse on it does nothing but pause the drift. (The browser also sends "mouse moved" events when the page scrolls under a still pointer; those have unchanged coordinates and are ignored, so the drift never pauses itself.)
+
+**Your stacks.** On the look board the main button is **＋ Add to your stacks**: `StashContext` stores a copy of the whole draft (every garment, what's kept, the post it started from) in localStorage, de-duplicated by a signature of section + origin + garment ids, newest first, at most `MAX_STACKS` 24. You're taken back to the feed. `StackTray` shows the pile bottom-left; picking a stack calls `resume(draft, "build" | "runway")` in `AppContext`, which restores the draft exactly as stored.
+
+**Keeping it fast.** The wall drifts every frame, so anything that forces a repaint on each frame is avoided: no shimmer animations behind photos (flat placeholder colour), no `backdrop-filter` on the sticky header or the runway card, no animated `box-shadow` on hover, a spotlight that only moves (no blur filter or blend mode). The catalog ranking is memoised separately from the live posts (each live source arriving no longer re-ranks every runway look), every piece's feature list is computed once (`featuresOf` caches it), card callbacks are stable and cards compare their position by value, so a new batch of posts only draws the new cards. Runway, Closet, About and the Muse drawer load on first visit (`lazy()` in `App.tsx`).
 
 **Opening.** The card's position is noted (`setHandoff`), then: a runway look → `startFromLook`; a garment → `startFromPiece`; a live post → `startFromLive` (the closest catalog garment, see §4½); a "Start with" tile → the question flow. The stack page flies the picture in from that position.
 

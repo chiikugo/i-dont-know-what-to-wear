@@ -14,7 +14,7 @@
  *                (Vogue Runway, firstVIEW, ARCHIVE.pdf); About · Privacy · Terms.
  *    5. CONTINUE (only if a look is in progress) jump back in.
  *    6. THE FEED an asymmetrical wall of posts that slowly scrolls itself and
- *                never ends — components/feed/Feed.tsx. Hover a post (or click
+ *                never ends — components/feed/Feed.tsx. Click a post (or tap
  *                it) to open it as a stack of cards on the next page.
  *
  *  WHERE THE "MODEL" SHOWS UP
@@ -36,7 +36,7 @@ import { sitePath } from "../lib/paths";
 import { timeAgo } from "../live/feed";
 import { REFRESH_MINUTES } from "../live/sources";
 import { useLiveFeed } from "../live/useLiveFeed";
-import { buildHomeFeed } from "../model/recommend";
+import { headlineFor } from "../model/recommend";
 import { useApp } from "../state/AppContext";
 import { useSection } from "../state/SectionContext";
 import { useTaste } from "../state/TasteContext";
@@ -56,10 +56,7 @@ export function Home() {
   const season = currentSeason();
 
   // Muse's one-line read on you.
-  const headline = useMemo(
-    () => buildHomeFeed({ section: sec, state: taste.state, crowd: taste.crowd, dismissed: taste.dismissed, limit: 1 }).headline,
-    [sec, taste.state, taste.crowd, taste.dismissed],
-  );
+  const headline = useMemo(() => headlineFor(taste.state), [taste.state]);
 
   // Moods that have enough pieces to be worth a chip.
   const moods = useMemo(() => {
@@ -123,7 +120,7 @@ export function Home() {
             <span className="home-lede-mark" aria-hidden="true">
               ✦
             </span>{" "}
-            {headline} <span className="only-hover">Hover a look to open it as a stack of cards.</span>
+            {headline} <span className="only-hover">Click a look to open it as a stack of cards.</span>
             <span className="only-touch">Tap a look to open it as a stack of cards.</span>
           </motion.p>
         </AnimatePresence>

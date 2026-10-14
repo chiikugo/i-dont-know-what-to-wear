@@ -49,8 +49,26 @@ function dressBucket(formality: number): "casual" | "smart" | "dressy" {
   return formality <= 2 ? "casual" : formality === 3 ? "smart" : "dressy";
 }
 
+/**
+ * Features already worked out, per piece. Ranking the home feed or composing
+ * an outfit asks for the same piece's features thousands of times, so each
+ * piece's list is built once and reused. (A WeakMap forgets a piece as soon as
+ * nothing else holds it, so this never grows without limit.)
+ * Treat the returned list as read-only — it is shared.
+ */
+const cache = new WeakMap<FeaturePiece, string[]>();
+
 /** All feature strings for a piece. */
 export function featuresOf(piece: FeaturePiece): string[] {
+  let features = cache.get(piece);
+  if (!features) {
+    features = computeFeatures(piece);
+    cache.set(piece, features);
+  }
+  return features;
+}
+
+function computeFeatures(piece: FeaturePiece): string[] {
   const features = [
     `cat:${piece.category}`,
     `fit:${piece.fit}`,

@@ -162,12 +162,6 @@ export const OPENVERSE_QUERIES: Record<"womenswear" | "menswear", string[]> = {
 /** Only these V&A object types count as "looks" (not sketches or posters). */
 export const VAM_OBJECT_TYPES = /ensemble|dress|gown|coat|jacket|suit|skirt|trouser|top|bodice|shoe|boot|bag|hat|cape|jumpsuit/i;
 
-/**
- * The relay's sources, by name — only used to label the status line.
- * (The real list is in supabase/functions/live-feed/index.ts.)
- */
-export const RELAY_LABEL = "Pinterest (Dior, Saint Laurent, Prada, Louis Vuitton… and Vogue) · YouTube shows · Harper's Bazaar · ELLE · W · Hypebeast · Dazed";
-
 /** How often the live posts refresh themselves, in minutes. TWEAK (Vogue updates its feed every ~5 min). */
 export const REFRESH_MINUTES = 3;
 

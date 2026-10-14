@@ -6,7 +6,8 @@
  *  WHAT THIS FILE IS
  *  state/draft.ts holds the *rules* of building an outfit (pure functions).
  *  This file holds the *current outfit* in React state and exposes friendly
- *  actions to the screens: `pick`, `finish`, `swap`, `shuffle`, `toRunway`…
+ *  actions to the screens: `pick`, `finish`, `swap`, `shuffle`, `toRunway`,
+ *  `resume` (pick a set-aside stack back up)…
  *
  *  Each action does up to three things:
  *      1. update the draft         (via a pure function in draft.ts)
@@ -142,6 +143,11 @@ export interface AppApi {
   toRunway: () => void;
   /** Re-open a saved outfit as the current look, on the runway or the board. */
   openOutfit: (outfit: Outfit, to?: "runway" | "build", origin?: DraftOrigin) => void;
+  /**
+   * Pick a stack back up from "Your stacks" (state/StashContext.tsx) exactly as
+   * it was — onto the board ("build") or straight down the runway.
+   */
+  resume: (draft: Draft, to?: "runway" | "build") => void;
 }
 
 const AppContext = createContext<AppApi | null>(null);
@@ -439,6 +445,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [set, setSection, toast],
   );
 
+  const resume = useCallback(
+    (d: Draft, to: "runway" | "build" = "build") => {
+      if (sectionRef.current !== d.section) setSection(d.section);
+      set({ ...d, focus: null });
+      if (to === "runway" && isComplete(d)) {
+        recordPieces("look-runway", d.section, Object.values(draftPieces(d)));
+        navigate("runway");
+      } else {
+        navigate("build");
+      }
+    },
+    [recordPieces, set, setSection],
+  );
+
   const startLook = useCallback(
     (look: Look) => {
       // (The draft's origin — the top card of the stack — is set below.)
@@ -491,6 +511,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       discard,
       toRunway,
       openOutfit,
+      resume,
     }),
     [
       draft,
@@ -522,6 +543,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       discard,
       toRunway,
       openOutfit,
+      resume,
     ],
   );
 

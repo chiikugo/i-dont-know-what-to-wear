@@ -12,11 +12,9 @@
  *
  *  The card is positioned by Feed.tsx (absolute x/y from feed/masonry.ts).
  *
- *  HOVER TO OPEN
- *  Rest the mouse on a card and a thin bar fills along its bottom edge; when it
- *  is full the post opens as a stack of cards (Feed.tsx runs the timer — the
- *  bar is pure CSS, `.feed-card-dwell` in styles/feed.css). Click to open at
- *  once. On a phone, tap.
+ *  OPENING
+ *  Click (or tap) a card and the post opens as a stack of cards. Hovering
+ *  only highlights it — nothing opens on a timer.
  *
  *  PINTEREST RULES
  *  Pins are shown exactly as they are: never cropped, filtered or covered (the
@@ -44,9 +42,6 @@ interface FeedCardProps {
   hidden: boolean;
   /** A live post that arrived while you were here. */
   fresh: boolean;
-  /** The pointer is resting on it — the open-bar is filling. */
-  dwelling: boolean;
-  dwellMs: number;
   onOpen: (post: Post, card: HTMLElement) => void;
   onDismiss: (post: Post) => void;
   /** Report a picture's real shape once it loads (pins, museum photos). */
@@ -75,7 +70,7 @@ function captionOf(post: Post, section: Section): { kind: string; meta: string; 
   }
 }
 
-function FeedCardBase({ post, place, index, section, hidden, fresh, dwelling, dwellMs, onOpen, onDismiss, onMeasure }: FeedCardProps) {
+function FeedCardBase({ post, place, index, section, hidden, fresh, onOpen, onDismiss, onMeasure }: FeedCardProps) {
   const [broken, setBroken] = useState(false);
   const caption = captionOf(post, section);
   const canDismiss = post.type === "live" || post.type === "piece";
@@ -84,7 +79,6 @@ function FeedCardBase({ post, place, index, section, hidden, fresh, dwelling, dw
     width: place.w,
     height: place.h,
     "--i": index % 10,
-    "--dwell-ms": `${dwellMs}ms`,
   } as React.CSSProperties;
 
   const className = [
@@ -93,7 +87,6 @@ function FeedCardBase({ post, place, index, section, hidden, fresh, dwelling, dw
     post.type === "live" ? `is-${post.item.kind}` : "",
     post.natural ? "is-natural" : "",
     place.span === 2 ? "is-wide" : "",
-    dwelling ? "is-dwelling" : "",
     hidden ? "is-hidden" : "",
   ]
     .filter(Boolean)
@@ -178,9 +171,6 @@ function FeedCardBase({ post, place, index, section, hidden, fresh, dwelling, dw
               <span className="feed-card-kind">{caption.kind}</span>
               {fresh && <span className="feed-card-new">New</span>}
               <span className="feed-card-where">{caption.meta}</span>
-              <span className="feed-card-opening" aria-hidden="true">
-                Opening the stack…
-              </span>
             </span>
             <span className="feed-card-title">
               {caption.title}
@@ -188,14 +178,12 @@ function FeedCardBase({ post, place, index, section, hidden, fresh, dwelling, dw
             </span>
           </span>
         )}
-        <span className="feed-card-dwell" aria-hidden="true" />
       </button>
 
       {canDismiss && (
         <button
           type="button"
           className="feed-card-dismiss"
-          data-no-dwell=""
           onClick={() => onDismiss(post)}
           aria-label={`Not for me: ${caption.title}`}
           title="Not for me"
@@ -207,5 +195,20 @@ function FeedCardBase({ post, place, index, section, hidden, fresh, dwelling, dw
   );
 }
 
-/** Memoised: while the feed drifts, only cards whose props change re-render. */
-export const FeedCard = memo(FeedCardBase);
+/**
+ * Memoised: only cards whose props really change re-render. The wall's layout
+ * is recalculated whenever posts are added or a picture reports its shape,
+ * which hands every card a NEW `place` object — usually with the very same
+ * numbers. So `place` is compared by its numbers, everything else as usual.
+ */
+function sameProps(a: FeedCardProps, b: FeedCardProps): boolean {
+  for (const key of Object.keys(a) as (keyof FeedCardProps)[]) {
+    if (key === "place") continue;
+    if (a[key] !== b[key]) return false;
+  }
+  const p = a.place;
+  const q = b.place;
+  return p.x === q.x && p.y === q.y && p.w === q.w && p.h === q.h && p.imageH === q.imageH && p.span === q.span;
+}
+
+export const FeedCard = memo(FeedCardBase, sameProps);

@@ -30,7 +30,7 @@
  */
 
 import { houseInfo } from "./shows";
-import type { Answers, CategoryId, FacetKey, Fit, Section, Slot, Tone, Vibe } from "./types";
+import type { CategoryId, FacetKey, Fit, Section, Slot, Tone, Vibe } from "./types";
 import { VIBES } from "./types";
 
 // ── Sections ────────────────────────────────────────────────────────────────
@@ -229,11 +229,6 @@ export function questionPrompt(key: FacetKey, category: CategoryId): string {
   }
 }
 
-/** A short word for the progress chips: "Baggy", "Earthy", "Denim"… */
-export function answerLabel(key: FacetKey, value: string, category: CategoryId): string {
-  return optionCopy(key, value, category).label;
-}
-
 /**
  * The label/blurb for ANY facet value. This is the one function the UI calls
  * when it needs wording for an option.
@@ -425,8 +420,3 @@ export const SLOT_LABEL: Record<Slot, string> = {
   accessory: "Finishing touch",
 };
 
-/** Type helper: the `Answers` of a facet chain as a readable list of [key, value]. */
-export function answerEntries(answers: Answers): [FacetKey, string][] {
-  return (Object.entries(answers) as [FacetKey, string | undefined][])
-    .filter((entry): entry is [FacetKey, string] => typeof entry[1] === "string");
-}

@@ -8,7 +8,6 @@
  *
  *    • you scroll, swipe, press a key or move the mouse over the posts
  *          → it pauses, and picks up again a few seconds after you stop
- *    • you hover a post (to open it)        → it holds still under you
  *    • the tab is hidden                    → it stops (browsers pause it)
  *    • your device asks for REDUCED MOTION  → it starts paused
  *    • the Pause button                     → off until you press Play
@@ -59,15 +58,10 @@ function savePref(on: boolean): void {
 export interface AutoScroll {
   /** True while the drift is switched on (it may still be briefly holding). */
   enabled: boolean;
-  /** True when it is moving right now. */
-  moving: boolean;
   /** The Play/Pause button. */
   toggle: () => void;
   /** Pause for a while (e.g. after the pointer moved over the posts). */
   holdFor: (ms: number) => void;
-  /** Hold still until `release()` (e.g. while hovering a post). */
-  hold: () => void;
-  release: (resumeAfterMs?: number) => void;
 }
 
 /**
@@ -78,26 +72,13 @@ export function useAutoScroll(active: boolean): AutoScroll {
   const reducedMotion =
     typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const [enabled, setEnabled] = useState<boolean>(() => loadPref() ?? !reducedMotion);
-  const [moving, setMoving] = useState(false);
 
-  // Timestamps / counters live in refs: they change every frame and must not re-render.
+  // The hold-until time lives in a ref: it changes constantly and must not re-render.
   const holdUntil = useRef(0);
-  const held = useRef(0);
-  const movingRef = useRef(false);
 
   const holdFor = useCallback((ms: number) => {
     holdUntil.current = Math.max(holdUntil.current, performance.now() + ms);
   }, []);
-  const hold = useCallback(() => {
-    held.current += 1;
-  }, []);
-  const release = useCallback(
-    (resumeAfterMs = 1200) => {
-      held.current = Math.max(0, held.current - 1);
-      holdFor(resumeAfterMs);
-    },
-    [holdFor],
-  );
 
   const toggle = useCallback(() => {
     setEnabled((on) => {
@@ -129,11 +110,7 @@ export function useAutoScroll(active: boolean): AutoScroll {
 
   // The drift itself.
   useEffect(() => {
-    if (!active || !enabled) {
-      movingRef.current = false;
-      setMoving(false);
-      return;
-    }
+    if (!active || !enabled) return;
     let raf = 0;
     let last = performance.now();
     let pos = window.scrollY;
@@ -152,7 +129,7 @@ export function useAutoScroll(active: boolean): AutoScroll {
       }
 
       const maxY = document.documentElement.scrollHeight - window.innerHeight;
-      const go = held.current === 0 && now >= holdUntil.current && document.visibilityState === "visible" && actual < maxY - 1;
+      const go = now >= holdUntil.current && document.visibilityState === "visible" && actual < maxY - 1;
       if (go) {
         pos = Math.min(maxY, pos + (DRIFT_PX_PER_SECOND * dt) / 1000);
         window.scrollTo(0, pos);
@@ -161,10 +138,6 @@ export function useAutoScroll(active: boolean): AutoScroll {
         pos = actual;
         expected = actual;
       }
-      if (go !== movingRef.current) {
-        movingRef.current = go;
-        setMoving(go);
-      }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -172,5 +145,7 @@ export function useAutoScroll(active: boolean): AutoScroll {
   }, [active, enabled, holdFor]);
 
   // One stable object, so components can list it as a dependency without churn.
-  return useMemo(() => ({ enabled, moving, toggle, holdFor, hold, release }), [enabled, moving, toggle, holdFor, hold, release]);
+  // (Deliberately no "is it moving right now?" state: that flips many times a
+  // minute and would re-render the whole feed each time.)
+  return useMemo(() => ({ enabled, toggle, holdFor }), [enabled, toggle, holdFor]);
 }

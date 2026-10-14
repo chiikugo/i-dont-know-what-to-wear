@@ -68,11 +68,6 @@ function setStatus(next: BackendStatus): void {
   listeners.forEach((l) => l());
 }
 
-/** Current status (non-React callers). */
-export function getBackendStatus(): BackendStatus {
-  return status;
-}
-
 /** React hook: re-renders whenever the connection status changes. */
 export function useBackendStatus(): BackendStatus {
   return useSyncExternalStore(

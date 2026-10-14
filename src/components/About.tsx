@@ -61,8 +61,9 @@ export function About() {
             photographs. Any scroll, swipe or mouse movement pauses it, and the Pause button stops it.
           </li>
           <li>
-            <strong>The stack.</strong> Hover a post (or click it) and it opens as a stack of cards: the post on top, then one
+            <strong>The stack.</strong> Click a post and it opens as a stack of cards: the post on top, then one
             card per garment. Hover the stack to fan it out, then click a card to change, refine, keep or delete that piece.
+            “Add to your stacks” sets it aside in the pile in the bottom-left corner while you keep browsing.
           </li>
           <li>
             <strong>The runway.</strong> Send the finished look down the runway, with links to the shows its pieces came from.

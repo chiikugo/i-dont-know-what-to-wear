@@ -6,7 +6,7 @@
  *  WHAT localStorage IS
  *  A small key → text store that lives in the user's browser and survives
  *  refreshes. We use it for: which section you picked, your in-progress outfit,
- *  your closet (as a local copy), the log of your taste events, and which live
+ *  your closet (as a local copy), the stacks you set aside, the log of your taste events, and which live
  *  looks you dismissed. (Live looks themselves are never stored.)
  *
  *  WHY A WRAPPER?
@@ -36,6 +36,8 @@ export const STORAGE_KEYS = {
   settings: "wtw.settings.v1",
   /** Ids of live-feed items the user said "not for me" to. */
   liveDismissed: "wtw.liveDismissed.v1",
+  /** The stacks set aside in the corner pile ("Your stacks"). */
+  stash: "wtw.stash.v1",
 } as const;
 
 /** Read and parse JSON; return `fallback` on any problem. */

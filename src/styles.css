@@ -19,6 +19,7 @@
  *      styles/feed.css      the endless, drifting home feed
  *      styles/deck.css      the stack of cards on the look board
  *      styles/about.css     the About page (sources, Pinterest connection)
+ *      styles/tray.css      "Your stacks", the pile in the bottom-left corner
  *
  *  Each component's class names start with its area (`.gate-…`, `.home-…`,
  *  `.builder-…`) so you can search for a class and land in the right file.
@@ -41,6 +42,7 @@
 @import "./styles/feed.css";
 @import "./styles/deck.css";
 @import "./styles/about.css";
+@import "./styles/tray.css";
 
 /* Your display font (free for personal use — see src/assets licence file). */
 @font-face {

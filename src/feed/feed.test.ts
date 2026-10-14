@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import { LOOKS } from "../data/catalog";
 import type { LiveItem } from "../live/feedCore";
-import { clampAspect, columnCount, layoutMasonry, visibleRange, type MasonryItem } from "./masonry";
+import { clampAspect, columnCount, layoutMasonry, type MasonryItem } from "./masonry";
 import { baseKey, BEAT, CAPTION_H, filterPools, newCursor, nextPosts, shapeFor, type FeedPools } from "./posts";
 
 const item = (key: string, aspect = 3 / 4, span: 1 | 2 = 1, captionH = 0): MasonryItem => ({ key, aspect, span, captionH });
@@ -54,14 +54,6 @@ describe("masonry layout", () => {
     expect(clampAspect(0)).toBeCloseTo(0.75);
     expect(clampAspect(50)).toBe(2.2);
     expect(clampAspect(0.01)).toBe(0.42);
-  });
-
-  it("only draws what's near the screen", () => {
-    const { placed } = layoutMasonry(Array.from({ length: 100 }, (_, i) => item(`k${i}`)), 600, { columns: 2 });
-    const visible = visibleRange(placed, 1000, 2000);
-    expect(visible.length).toBeGreaterThan(0);
-    expect(visible.length).toBeLessThan(20);
-    expect(visible.every((p) => p.y < 2000 && p.y + p.h > 1000)).toBe(true);
   });
 });
 

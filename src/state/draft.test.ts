@@ -27,7 +27,6 @@ import {
   previewPiece,
   reopen,
   replaceSlot,
-  restoreSlot,
   shuffle,
   skip,
   startFromCategory,
@@ -190,7 +189,7 @@ describe("board actions", () => {
     expect(d.slots.accessory).toBeUndefined();
     d = shuffle(d);
     expect(d.slots.accessory).toBeUndefined(); // stays off through a shuffle
-    d = restoreSlot(d, "accessory");
+    d = fillSlot(d, "accessory");
     expect(d.slots.accessory).toBeDefined();
   });
 

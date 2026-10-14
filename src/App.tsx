@@ -13,6 +13,7 @@
  *                 ├─ SectionProvider     menswear | womenswear (+ remembered)
  *                 ├─ TasteProvider       the learning model ("Muse")  ← model/*
  *                 ├─ ClosetProvider      saved outfits + Supabase sync ← lib/*
+ *                 ├─ StashProvider       stacks set aside ("Your stacks")
  *                 ├─ AppProvider         the outfit being built        ← state/draft.ts
  *                 │
  *                 └─ <Shell/>
@@ -25,7 +26,8 @@
  *                      │     #/closet  → <Closet/>
  *                      │     #/about   → <About/>     (sources, Pinterest, your data)
  *                      ├─ <SiteFooter/>    About · Privacy · Terms (not on the endless home feed)
- *                      └─ <MuseInsights/>  the slide-over drawer
+ *                      ├─ <StackTray/>     "Your stacks" — the pile in the bottom-left corner
+ *                      └─ <MuseInsights/>  the slide-over drawer (loaded the first time it opens)
  *
  *  (main.tsx shows <PinterestCallback/> instead of all this when Pinterest
  *   sends the browser back after "Connect Pinterest".)
@@ -37,21 +39,24 @@
  *  only use the ones above it (e.g. the closet uses toasts; the builder uses
  *  the taste model).
  *
+ *  LOADING ONLY WHAT'S NEEDED
+ *  The Runway, Closet and About pages and the Muse drawer are `lazy()`: their
+ *  code is a separate file the browser fetches the first time you go there,
+ *  so the first visit downloads (and starts) less. The home feed, the gate
+ *  and the builder load up front because they're where everyone begins.
+ *
  *  PAGE TRANSITIONS
  *  `AnimatePresence mode="wait"` fades the old page out, then the new one in.
  *  Giving the page a `key` is what tells React "this is a different page".
  */
 
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { About } from "./components/About";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Builder } from "./components/builder/Builder";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { Closet } from "./components/Closet";
 import { Home } from "./components/Home";
-import { MuseInsights } from "./components/MuseInsights";
-import { Runway } from "./components/Runway";
 import { SectionGate } from "./components/SectionGate";
+import { StackTray } from "./components/StackTray";
 import { TopBar } from "./components/TopBar";
 import { activeFeedHasPosition } from "./feed/memory";
 import { useRoute } from "./lib/router";
@@ -61,7 +66,14 @@ import { AppProvider } from "./state/AppContext";
 import { ClosetProvider } from "./state/ClosetContext";
 import { SectionProvider, useSection } from "./state/SectionContext";
 import { TasteProvider } from "./state/TasteContext";
+import { StashProvider } from "./state/StashContext";
 import { ToastProvider } from "./state/ToastContext";
+
+// Pages fetched on first visit (see "LOADING ONLY WHAT'S NEEDED" above).
+const About = lazy(() => import("./components/About").then((m) => ({ default: m.About })));
+const Closet = lazy(() => import("./components/Closet").then((m) => ({ default: m.Closet })));
+const Runway = lazy(() => import("./components/Runway").then((m) => ({ default: m.Runway })));
+const MuseInsights = lazy(() => import("./components/MuseInsights").then((m) => ({ default: m.MuseInsights })));
 
 export default function App() {
   return (
@@ -73,9 +85,11 @@ export default function App() {
           <SectionProvider>
             <TasteProvider>
               <ClosetProvider>
-                <AppProvider>
-                  <Shell />
-                </AppProvider>
+                <StashProvider>
+                  <AppProvider>
+                    <Shell />
+                  </AppProvider>
+                </StashProvider>
               </ClosetProvider>
             </TasteProvider>
           </SectionProvider>
@@ -90,6 +104,11 @@ function Shell() {
   const route = useRoute();
   const { section } = useSection();
   const [museOpen, setMuseOpen] = useState(false);
+  // The drawer's code is only fetched once someone opens it.
+  const [museLoaded, setMuseLoaded] = useState(false);
+  useEffect(() => {
+    if (museOpen) setMuseLoaded(true);
+  }, [museOpen]);
 
   // Start a new page at the top — except the home feed, which returns you to
   // where you were (feed/memory.ts).
@@ -129,7 +148,8 @@ function Shell() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.28, ease: [0.22, 0.9, 0.24, 1] }}
           >
-            {page}
+            {/* A lazy page shows nothing for the moment its file is fetching. */}
+            <Suspense fallback={<div className="page-loading" aria-busy="true" />}>{page}</Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
@@ -144,7 +164,13 @@ function Shell() {
         </footer>
       )}
 
-      <MuseInsights open={museOpen} onClose={() => setMuseOpen(false)} />
+      <StackTray />
+
+      {museLoaded && (
+        <Suspense fallback={null}>
+          <MuseInsights open={museOpen} onClose={() => setMuseOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }

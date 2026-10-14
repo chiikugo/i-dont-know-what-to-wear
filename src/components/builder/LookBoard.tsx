@@ -15,7 +15,11 @@
  *        Keep · Delete (CardPanel.tsx)
  *      • "Add …" buttons for anything deleted
  *      • Shuffle (re-roll everything that isn't kept)
- *      • "Send down the runway" — the finale
+ *      • "Add to your stacks" — THE main button: puts this stack aside in the
+ *        pile in the bottom-left corner (StackTray.tsx) and takes you back to
+ *        the feed to keep looking. Nothing jumps to the runway on its own.
+ *      • "Send down the runway" — still here, as the quieter second choice
+ *        (and on every stack in the corner pile)
  */
 
 import { AnimatePresence, motion } from "motion/react";
@@ -26,7 +30,10 @@ import { COLORS } from "../../data/types";
 import { SECTIONS, SLOT_LABEL } from "../../data/wardrobe";
 import { describeLook } from "../../engine/copy";
 import { scoreCandidate } from "../../engine/composer";
+import { navigate } from "../../lib/router";
 import type { AppApi } from "../../state/AppContext";
+import { useStash } from "../../state/StashContext";
+import { useToast } from "../../state/ToastContext";
 import { CardDeck } from "./CardDeck";
 
 /** "Add shoes", "Add a top", "Add a finishing touch"… */
@@ -40,9 +47,19 @@ function addLabel(slot: Slot): string {
 export function LookBoard({ app }: { app: AppApi }) {
   const draft = app.draft!;
   const { pieces } = app;
+  const stash = useStash();
+  const toast = useToast();
 
   // Name, silhouette, palette… The seed makes "Shuffle" produce a new name too.
   const facts = useMemo(() => describeLook(pieces, draft.seed), [pieces, draft.seed]);
+
+  /** Put this stack aside in the corner pile, then back to the feed. */
+  const addToStacks = () => {
+    const isNew = stash.add(draft);
+    toast.push({ message: isNew ? `“${facts.name}” added to your stacks.` : "Already in your stacks — moved to the top." });
+    app.discard();
+    navigate("home");
+  };
 
   // Why each Muse-picked piece suits the others (recomputed when pieces change).
   const reasons = useMemo(() => {
@@ -155,9 +172,12 @@ export function LookBoard({ app }: { app: AppApi }) {
           Start over
         </button>
         <span className="board-actions-spacer" />
-        {missing.length > 0 && <span className="board-missing">{missing.map((s) => addLabel(s).replace(/^Add /, "")).join(" and ")} to finish the look</span>}
-        <button type="button" className="btn btn-primary btn-lg" onClick={app.toRunway} disabled={!app.complete}>
+        {missing.length > 0 && <span className="board-missing">{missing.map((s) => addLabel(s).replace(/^Add /, "")).join(" and ")} to walk the runway</span>}
+        <button type="button" className="btn btn-ghost" onClick={app.toRunway} disabled={!app.complete}>
           Send down the runway <span aria-hidden="true">→</span>
+        </button>
+        <button type="button" className="btn btn-primary btn-lg" onClick={addToStacks} disabled={shown.length === 0}>
+          <span aria-hidden="true">＋</span> Add to your stacks
         </button>
       </footer>
     </div>

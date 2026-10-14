@@ -4,33 +4,28 @@
  * ─────────────────────────────────────────────────────────────────────────────
  *
  *  WHAT THIS FILE DOES
- *  Turns "the model's opinion about every piece" into the *rows* (rails) shown
- *  on the home page:
+ *  Turns "the model's opinion about every piece" into the ORDER of things on
+ *  the endless home feed (components/feed/Feed.tsx):
  *
- *      Off the runway        ← whole runway LOOKS (photos), ranked by how
- *                              much you'd like the pieces in them
- *      Picked for you        ← highest taste score (with some variety)
- *      Because you like …    ← more of your single strongest preference
- *      Try something new     ← things the model is least sure about (explore)
- *      Popular right now     ← the community prior (or Editor's picks until
- *                              there is any community data)
+ *      rankLooks     whole runway LOOKS (photos), ranked by how much you'd
+ *                    like the pieces in them — each with a plain-English reason
+ *      rankPieces    every garment, best first, spread out so one show or
+ *                    photo never crowds the wall
+ *      headlineFor   the one-line read on you at the top of the home page
  *
- *  Each recommendation also carries a *reason* in plain English
- *  ("Because you like baggy, oversized fits"), generated from the model's
- *  own score breakdown — there is no separate hand-written explanation.
+ *  Each reason ("Because you like baggy, oversized fits") is generated from
+ *  the model's own score breakdown — there is no hand-written explanation.
  *
- *  It is pure: give it a model state, get rails back. The page re-calls it
- *  whenever your taste changes, which is why the home screen visibly adapts
- *  after a few taps.
+ *  It is pure: give it a model state, get an order back. The feed re-calls it
+ *  whenever your taste changes, which is why the home page visibly adapts.
  */
 
 import { LOOKS, type Look } from "../data/catalog";
 import type { Piece, Section, Vibe } from "../data/types";
-import { VIBES } from "../data/types";
 import { piecesForSection } from "../engine/resolver";
 import { featureLabel, featuresOf } from "./features";
 import type { CrowdPrior, TasteState } from "./tasteModel";
-import { EDITORIAL_PRIOR, explain, rankScore, taste, topFeatures, uncertainty } from "./tasteModel";
+import { explain, rankScore, taste, topFeatures } from "./tasteModel";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,28 +38,11 @@ export interface RecItem {
   score: number;
 }
 
-/** A horizontal row on the home page. */
-export interface Rail {
-  id: "picks" | "because" | "explore" | "community" | "editor";
-  title: string;
-  subtitle: string;
-  items: RecItem[];
-}
-
 /** One recommended runway look (a whole photo) plus the "why". */
 export interface LookRec {
   look: Look;
   reason: string;
   score: number;
-}
-
-/** The whole personalised home screen. */
-export interface HomeFeed {
-  /** One line summarising what the model has learned so far. */
-  headline: string;
-  /** Whole runway looks, best first (the "Off the runway" row). */
-  looks: LookRec[];
-  rails: Rail[];
 }
 
 export interface FeedArgs {
@@ -75,7 +53,7 @@ export interface FeedArgs {
   dismissed: ReadonlySet<string>;
   /** When set, only pieces with this mood are shown. */
   vibe?: Vibe | null;
-  /** Items per rail (default 8). */
+  /** How many to return (rankLooks only; default 10). */
   limit?: number;
   /** Most looks from one show (rankLooks only; default 2 — the endless feed allows more). */
   perShow?: number;
@@ -105,76 +83,8 @@ function reasonCandidates(piece: Piece, state: TasteState, crowd: CrowdPrior | n
     });
 }
 
-/**
- * Give every item in a rail a reason, preferring one that hasn't been used yet
- * in that rail. Without this, a cold-start rail says "Editor's pick: minimal
- * style" under every single card, which reads as filler.
- */
-function varyReasons(items: RecItem[], state: TasteState, crowd: CrowdPrior | null): RecItem[] {
-  const used = new Map<string, number>();
-  return items.map((item) => {
-    const options = reasonCandidates(item.piece, state, crowd);
-    if (options.length === 0) return { ...item, reason: "A fresh option to try" };
-    const choice = options.find((o) => (used.get(o) ?? 0) === 0) ?? options[0];
-    used.set(choice, (used.get(choice) ?? 0) + 1);
-    return { ...item, reason: choice };
-  });
-}
-
-/** For the "explore" rail: name the thing the model knows least about. */
-function noveltyReason(piece: Piece, state: TasteState): string {
-  const unseen = featuresOf(piece)
-    .filter((f) => !/^(dress|color|fitcat|cat):/.test(f))
-    .map((f) => ({ f, n: state.n[f] ?? 0 }))
-    .sort((a, b) => a.n - b.n)[0];
-  return unseen ? `New to you: ${featureLabel(unseen.f)}` : "New to you";
-}
-
-/**
- * Keep the order of `items` but make sure nothing crowds the row:
- *   • at most `maxPerCategory` of each category (no eight shirts in a row),
- *   • at most MAX_PER_SHOW pieces from the same show (no row of only Michael Kors),
- *   • at most ONE piece from the same runway photo (no coat AND dress from one look),
- *   • no two pieces with the same name (a show often repeats one shoe in every look).
- * If the rules leave the row short, the best of the skipped items fill it up.
- * TWEAK MAX_PER_SHOW to allow more (or fewer) pieces from one collection per row.
- */
-const MAX_PER_SHOW = 2;
-function diversify<T extends { piece: Piece }>(items: T[], limit: number, maxPerCategory = 2): T[] {
-  const perCategory = new Map<string, number>();
-  const perShow = new Map<string, number>();
-  const looks = new Set<string>();
-  const titles = new Set<string>();
-  const out: T[] = [];
-  const skipped: T[] = [];
-  for (const item of items) {
-    const { category, show, look, title } = item.piece;
-    if (
-      (perCategory.get(category) ?? 0) >= maxPerCategory ||
-      (perShow.get(show) ?? 0) >= MAX_PER_SHOW ||
-      looks.has(look) ||
-      titles.has(title)
-    ) {
-      if (!titles.has(title)) skipped.push(item);
-      continue;
-    }
-    perCategory.set(category, (perCategory.get(category) ?? 0) + 1);
-    perShow.set(show, (perShow.get(show) ?? 0) + 1);
-    looks.add(look);
-    titles.add(title);
-    out.push(item);
-    if (out.length >= limit) return out;
-  }
-  // Not enough variety in this pool (e.g. a narrow mood filter): top up with the best of the rest.
-  for (const item of skipped) {
-    if (out.length >= limit) break;
-    if (!out.some((o) => o.piece.look === item.piece.look || o.piece.title === item.piece.title)) out.push(item);
-  }
-  return out;
-}
-
 /** "Leaning baggy fits, minimal style & earthy tones" — or an invitation. */
-function headlineFor(state: TasteState): string {
+export function headlineFor(state: TasteState): string {
   if (state.picks < 3) {
     return "Tap a mood or start with a piece — I'll learn your taste as you go.";
   }
@@ -193,149 +103,11 @@ function headlineFor(state: TasteState): string {
 
 // ── The feed ────────────────────────────────────────────────────────────────
 
-/** Build every rail for the home page. */
-export function buildHomeFeed(args: FeedArgs): HomeFeed {
-  const { section, state, crowd, dismissed, vibe = null, limit = 8 } = args;
-
-  // Candidate pool: this section, not dismissed, optionally one mood.
-  const pool = piecesForSection(section).filter(
-    (p) => !dismissed.has(p.id) && (!vibe || p.vibes.includes(vibe)),
-  );
-
-  // Pre-compute features once per piece.
-  const featureMap = new Map(pool.map((p) => [p.id, featuresOf(p)]));
-  const feats = (p: Piece) => featureMap.get(p.id)!;
-
-  const used = new Set<string>();
-  const take = (items: RecItem[]) => {
-    items.forEach((i) => used.add(i.piece.id));
-    return items;
-  };
-  // The reason is filled in per rail by `varyReasons` once the rail is final.
-  const toItem = (piece: Piece, score: number): RecItem => ({ piece, score, reason: "" });
-
-  const rails: Rail[] = [];
-
-  // 1 ── Picked for you: highest taste (+ a touch of exploration).
-  // Garments lead: a look is built AROUND the piece you tap, and a tote or a
-  // belt makes a weaker starting point than a jacket. (Other rails still mix
-  // everything in.)
-  const isGarment = (p: Piece) => p.category !== "accessories" && p.category !== "shoes";
-  const garments = pool.filter(isGarment);
-  const picks = diversify(
-    (garments.length >= limit ? garments : pool)
-      .map((p) => toItem(p, rankScore(state, feats(p), crowd, 0.3)))
-      .sort((a, b) => b.score - a.score),
-    limit,
-  );
-  rails.push({
-    id: "picks",
-    title: vibe ? `${VIBES[vibe].label}, picked for you` : "Picked for you",
-    subtitle: state.picks < 3 ? "A curated start — it gets personal as you pick" : "Ranked by what you've been choosing",
-    items: take(varyReasons(picks, state, crowd)),
-  });
-
-  // 2 ── Because you like …: more of the single strongest preference.
-  if (state.picks >= 3) {
-    // (`house:` included, so this can become "More Max Mara" once you keep picking one designer.)
-    const top = topFeatures(state, 12).likes.find(([f]) => /^(fit|vibe|tone|type|house):/.test(f));
-    if (top) {
-      const [feature] = top;
-      const items = diversify(
-        pool
-          .filter((p) => !used.has(p.id) && feats(p).includes(feature))
-          .map((p) => toItem(p, taste(state, feats(p), crowd)))
-          .sort((a, b) => b.score - a.score),
-        limit,
-        3,
-      );
-      if (items.length >= 3) {
-        rails.push({
-          id: "because",
-          title: `More ${featureLabel(feature)}`,
-          subtitle: "Because it keeps showing up in your picks",
-          items: take(varyReasons(items, state, crowd)),
-        });
-      }
-    }
-  }
-
-  // 3 ── Try something new: what the model knows least about.
-  const explore = diversify(
-    pool
-      .filter((p) => !used.has(p.id))
-      .map((p) => {
-        const f = feats(p);
-        // Mostly "unfamiliar", with a little taste so it isn't random noise.
-        const score = 2 * uncertainty(state, f) + 0.3 * taste(state, f, crowd);
-        return { piece: p, score, reason: noveltyReason(p, state) } satisfies RecItem;
-      })
-      .sort((a, b) => b.score - a.score),
-    limit,
-    2,
-  );
-  if (explore.length) {
-    rails.push({
-      id: "explore",
-      title: "Try something new",
-      subtitle: "Outside your usual — this is how the model keeps learning",
-      items: take(explore),
-    });
-  }
-
-  // 4 ── Community popularity, or editor's picks until there is any.
-  if (crowd && crowd.users > 0) {
-    const items = diversify(
-      pool
-        .filter((p) => !used.has(p.id))
-        .map((p) => {
-          const f = feats(p);
-          const score = f.reduce((s, x) => s + (crowd.w[x] ?? 0), 0) / Math.sqrt(f.length);
-          return { piece: p, score, reason: "" } satisfies RecItem;
-        })
-        .sort((a, b) => b.score - a.score),
-      limit,
-      2,
-    );
-    if (items.length) {
-      rails.push({
-        id: "community",
-        title: "Popular right now",
-        subtitle: `From ${crowd.users} ${crowd.users === 1 ? "person" : "people"} using the app`,
-        items: take(varyReasons(items, state, crowd)),
-      });
-    }
-  } else {
-    const items = diversify(
-      pool
-        .filter((p) => !used.has(p.id))
-        .map((p) => {
-          const f = feats(p);
-          const score = f.reduce((s, x) => s + (EDITORIAL_PRIOR[x] ?? 0), 0) / Math.sqrt(f.length);
-          return { piece: p, score, reason: "" } satisfies RecItem;
-        })
-        .sort((a, b) => b.score - a.score),
-      limit,
-      2,
-    );
-    if (items.length) {
-      rails.push({
-        id: "editor",
-        title: "Editor's picks",
-        subtitle: "Timeless pieces to begin with",
-        items: take(varyReasons(items, state, crowd)),
-      });
-    }
-  }
-
-  return { headline: headlineFor(state), looks: rankLooks(args), rails };
-}
-
 /**
- * Whole runway looks for the "Off the runway" row.
+ * Whole runway looks for the home feed, best first.
  * A look's score = the average taste score of its garments (accessories left
  * out — a bag shouldn't decide whether you like an outfit). At most two looks
- * per show, so one collection can't fill the row.
+ * per show, so one collection can't fill the wall (the feed passes a higher `perShow`).
  */
 export function rankLooks(args: FeedArgs): LookRec[] {
   const { section, state, crowd, dismissed, vibe = null, limit = 10, perShow = 2 } = args;
@@ -350,7 +122,14 @@ export function rankLooks(args: FeedArgs): LookRec[] {
       const garments = look.pieces.filter((p) => p.category !== "accessories");
       const counted = garments.length ? garments : look.pieces;
       const score = counted.reduce((sum, p) => sum + rankScore(state, featuresOf(p), crowd, 0.2), 0) / counted.length;
-      return { look, score, best: [...counted].sort((a, b) => taste(state, featuresOf(b), crowd) - taste(state, featuresOf(a), crowd))[0] };
+      // The garment you'd like most (one pass — no sorting needed for a maximum).
+      let best = counted[0];
+      let bestTaste = -Infinity;
+      for (const p of counted) {
+        const t = taste(state, featuresOf(p), crowd);
+        if (t > bestTaste) [best, bestTaste] = [p, t];
+      }
+      return { look, score, best };
     })
     .sort((a, b) => b.score - a.score);
 
@@ -364,7 +143,7 @@ export function rankLooks(args: FeedArgs): LookRec[] {
     if (out.length >= limit) break;
   }
 
-  // Reasons: borrow the best garment's explanation, varied across the row.
+  // Reasons: borrow the best garment's explanation, varied across the feed.
   const used = new Set<string>();
   return out.map(({ look, score, best }) => {
     const options = reasonCandidates(best, state, crowd);

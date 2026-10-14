@@ -1,0 +1,224 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles/tray.css — "Your stacks", the pile in the bottom-left corner
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  Component: components/StackTray.tsx.
+ *
+ *  TWEAK
+ *    where it sits        → .tray (left / bottom; phones: the @media block)
+ *    size of the pile     → .tray-card width / height
+ *    height of the list   → .tray-list max-height
+ */
+
+.tray {
+  position: fixed;
+  left: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 150;
+}
+
+/* ── The closed pile ───────────────────────────────────── */
+.tray-pile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px 10px 12px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 14px 30px -18px rgba(22, 20, 18, 0.6);
+  transition: transform 0.2s var(--ease-out);
+}
+
+.tray-pile:hover,
+.tray.is-open .tray-pile {
+  transform: translateY(-2px);
+}
+
+.tray-cards {
+  position: relative;
+  width: 52px;
+  height: 64px;
+}
+
+.tray-card {
+  position: absolute;
+  left: 4px;
+  top: 0;
+  width: 44px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 3px;
+  border: 2px solid var(--paper);
+  background: var(--paper-2);
+  box-shadow: 0 4px 10px -4px rgba(22, 20, 18, 0.5);
+  transform-origin: 50% 90%;
+}
+
+.tray-card img,
+.tray-item-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tray-label {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.tray-label .eyebrow {
+  color: var(--ink);
+}
+
+.tray-count {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+}
+
+/* ── The open list ─────────────────────────────────────── */
+.tray-panel {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 10px);
+  width: min(360px, calc(100vw - 32px));
+  padding: 14px 8px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: 0 24px 50px -24px rgba(22, 20, 18, 0.55);
+  transform-origin: 0 100%;
+}
+
+.tray-panel-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 10px 8px;
+}
+
+.tray-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: min(60vh, 440px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tray-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border-radius: var(--radius);
+}
+
+.tray-item:hover {
+  background: var(--paper-2);
+}
+
+.tray-item-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.tray-item-thumb {
+  flex: none;
+  width: 42px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--paper-2);
+}
+
+.tray-item-words {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.tray-item-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.tray-item-houses {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tray-item-runway,
+.tray-item-remove {
+  flex: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--pill);
+  background: none;
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tray-item-runway {
+  padding: 7px 12px;
+}
+
+.tray-item-runway:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.tray-item-runway:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.tray-item-remove {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.tray-item-remove:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+/* ── Phones: sit above the bottom tab bar, a little smaller ── */
+@media (max-width: 860px) {
+  .tray {
+    left: 12px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  .tray-pile {
+    padding: 8px 14px 8px 10px;
+    gap: 10px;
+  }
+
+  .tray-count {
+    font-size: 22px;
+  }
+}

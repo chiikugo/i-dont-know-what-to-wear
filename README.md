@@ -4,7 +4,7 @@
 >
 > Every garment in the app is cut from a **real runway, street-style or archive photo** — Alexander McQueen, Max Mara, Michael Kors, 3.1 Phillip Lim, Y-3, Diane von Furstenberg, Iris van Herpen, Oliver Spencer, Astrid Andersen, Raf Simons, Comme des Garçons, Margiela and more — and every look links to its show on **Vogue Runway, firstVIEW, ARCHIVE.pdf and WWD**.
 >
-> The home page is an **endless, slowly drifting wall** of the newest looks — Vogue Runway, British Vogue, GQ, the houses' own Pinterest and YouTube channels (Dior, Saint Laurent, Prada, Louis Vuitton, Chanel…), Harper's Bazaar, ELLE, W, Hypebeast, Dazed, the V&A museum and Creative Commons runway photography — mixed with the app's own runway looks, refreshing itself every few minutes. **Hover a post and it opens as a stack of cards**: fan the stack out, pick a piece, and change, refine, keep or delete it.
+> The home page is an **endless, slowly drifting wall** of the newest looks — Vogue Runway, British Vogue, GQ, the houses' own Pinterest and YouTube channels (Dior, Saint Laurent, Prada, Louis Vuitton, Chanel…), Harper's Bazaar, ELLE, W, Hypebeast, Dazed, the V&A museum and Creative Commons runway photography — mixed with the app's own runway looks, refreshing itself every few minutes. **Click a post and it opens as a stack of cards**: fan the stack out, pick a piece, change, refine, keep or delete it — then **add the stack to your pile** in the bottom-left corner and keep browsing.
 >
 > **Nothing is downloaded.** Every picture is shown straight from where it lives (Wikimedia, Vogue, Pinterest, YouTube…), always linking back to the original.
 
@@ -18,7 +18,8 @@ A React + TypeScript site. No server of your own. Optional free Supabase databas
 |---|---|
 | **Start** | Choose **Menswear** or **Womenswear** on a split-screen gate. |
 | **Home** | An **endless, asymmetrical wall** of posts that **scrolls itself slowly downward** (any scroll, swipe or mouse movement pauses it; there's a Pause button). Live looks from the web mix with the app's own runway looks and garments, ordered by a small learning model ("**Muse**"). Chips filter it (Runway · Shows · Street style · Pinterest · Archive · Garments, and moods). |
-| **The stack** | **Hover a post** (rest the mouse ~1 s — a bar fills) or click it, and it opens on the next page as a **stack of cards**: the post on top, one card per garment of an outfit built from it. **Hover the stack** to fan it out like a hand of cards and pick a piece; **click a card** for *Change* (choose from the best alternatives) · *Refine* (questions) · *Keep* · *Delete* (with Undo). On a phone: tap to fan, slide a finger across, let go to pick. |
+| **The stack** | **Click a post** (tap on a phone) and it opens on the next page as a **stack of cards** — nothing opens just because the mouse rests on it: the post on top, one card per garment of an outfit built from it. **Hover the stack** to fan it out like a hand of cards and pick a piece; **click a card** for *Change* (choose from the best alternatives) · *Refine* (questions) · *Keep* · *Delete* (with Undo). On a phone: tap to fan, slide a finger across, let go to pick. Then **＋ Add to your stacks** sets it aside and takes you back to the feed. |
+| **Your stacks** | The pile in the **bottom-left corner** holds every stack you added (on this device). Click it for the list: re-open a stack, send it **down the runway**, or remove it. |
 | **Build** | Or start from a category (say *Shirts*): a garment cropped from a runway photo asks *"Slim fit or baggy?"* → *which tone?* → *what mood?* → *whose runway?* — as many or as few questions as you like. Then the **outfit engine** builds everything else (bottoms, shoes, layer, accessory) from that one piece, preferring pieces that walked together on the runway, and lands on the stack of cards. |
 | **Runway** | The finished look is presented like a show: it "walks in", gets a name, silhouette, palette, styling notes; **Seen on the runway** shows the original photos with links to those exact shows on **Vogue Runway, firstVIEW, ARCHIVE.pdf and WWD**; plus editorial and shopping links (Harper's Bazaar/GQ, Elle, Highsnobiety, Dazed, SSENSE, Farfetch, ASOS, Pinterest). |
 | **Closet** | Save looks. Stored in this browser — and in **Supabase** once you connect it. |
@@ -204,13 +205,14 @@ src/
 │  ├─ features.ts .......... piece → feature strings ("fit:baggy", "vibe:street"…)
 │  ├─ tasteModel.ts ........ online logistic regression + explanations
 │  ├─ crowd.ts ............. community counts → prior
-│  └─ recommend.ts ......... builds the home-screen rails
+│  └─ recommend.ts ......... ranks looks + garments for the home feed, the headline
 │
 ├─ state/ .................. REACT STATE  (glue around the pure logic)
 │  ├─ draft.ts ............. the outfit-in-progress as a pure state machine
 │  ├─ AppContext.tsx ....... builder actions: pick, finish, swap, shuffle…
 │  ├─ TasteContext.tsx ..... event log ↔ model ↔ Supabase
 │  ├─ ClosetContext.tsx .... saved outfits, local-first sync
+│  ├─ StashContext.tsx ..... "Your stacks": stacks set aside (this device)
 │  ├─ SectionContext.tsx ... menswear | womenswear (remembered)
 │  └─ ToastContext.tsx ..... pop-up messages
 │
@@ -242,7 +244,8 @@ src/
 ├─ components/ ............. WHAT YOU SEE
 │  ├─ SectionGate.tsx ...... Menswear | Womenswear split screen
 │  ├─ Home.tsx ............. the home header + the feed
-│  ├─ feed/ ................ Feed (the wall, hover-to-open) · FeedCard
+│  ├─ feed/ ................ Feed (the wall, click to open) · FeedCard
+│  ├─ StackTray.tsx ........ "Your stacks" — the pile in the bottom-left corner
 │  ├─ builder/ ............. Builder → CategoryStart · PieceStep · LookBoard
 │  │                         LookBoard → CardDeck (the stack) · CardPanel (Change/Refine/Keep/Delete)
 │  ├─ About.tsx ............ sources + status, how Pinterest is used, credits, clear data
@@ -306,7 +309,8 @@ Rule of thumb: **`data/`, `engine/`, `model/` and `state/draft.ts` contain no Re
 | **Change how the live row is ordered** | `KIND_BONUS`, `HALF_LIFE_BY_KIND`, `TASTE_WEIGHT` in `src/live/feed.ts` |
 | **Teach Muse a new designer name** | `HOUSES` in `src/data/houses.ts` |
 | **Make the home page drift faster / slower** | `DRIFT_PX_PER_SECOND` in `src/feed/useAutoScroll.ts` |
-| **Change how long a hover takes to open a post** (or turn it off) | `HOVER_OPEN_MS` in `src/components/feed/Feed.tsx` (`null` = click only) |
+| **Change how many stacks the corner pile keeps** | `MAX_STACKS` in `src/state/StashContext.tsx` |
+| **Move the corner pile** (e.g. to the right) | `.tray` in `src/styles/tray.css` (the Pause button sits bottom-right) |
 | **Change the mix of the feed** (more live, fewer garments…) | `BEAT` in `src/feed/posts.ts` |
 | **Change the columns / the stagger** | `COLUMN_BREAKPOINTS`, `STAGGER` in `src/feed/masonry.ts` |
 | **Change how the cards fan out** | `STACK_TILT`, `FAN_MAX_TURN`, `LIFT` in `src/components/builder/deckLayout.ts` |
@@ -330,7 +334,7 @@ Rule of thumb: **`data/`, `engine/`, `model/` and `state/draft.ts` contain no Re
 ## Known limits
 
 - **The catalog is hand-curated and small** (167 looks → about 480 pieces). Freely licensed runway photography is rare, so the seasons skew to Fall 2010 / Fall 2018–19 / Spring 2014, and **menswear is thinner** (30 looks — two runway shows, street style and archive pieces — against 137 for womenswear). Some answer combinations have just one photo; the question flow skips a question when there's nothing to choose between.
-- **Hover-to-open is deliberate but gentle.** Resting the mouse on a post for about a second opens it (a bar shows it filling). Posts drifting under a still mouse never open on their own — only real mouse movement starts the timer. Set `HOVER_OPEN_MS` to `null` for click-only.
+- **"Your stacks" live on this device only** (localStorage), unlike the Closet, which syncs to Supabase. Clearing site data empties the pile.
 - **Live looks are pictures, not tagged garments.** The outfit builder needs garments tagged by fit, colour and slot, so live looks inspire a build (via the closest catalog garment) rather than being worn piece-by-piece. Tagging live photos automatically would need an AI vision step — a possible next step.
 - **The live row depends on other sites.** If a publisher changes or drops its feed, that source goes quiet (the status line under the row says which). Feeds are meant for personal reading; before publishing this widely, check each publisher's feed terms.
 - **A crop shows the garment *in* the outfit.** Pieces are cut from full-length photos, so a "trousers" card shows the legs of the look (and maybe the hem of a coat). Museum archive pieces are shown whole.

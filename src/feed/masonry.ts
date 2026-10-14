@@ -158,11 +158,3 @@ export function layoutMasonry(
   return { placed, height: Math.round(Math.max(0, ...bottoms) - (placed.length ? gap : 0)), columns, columnWidth };
 }
 
-/**
- * The posts that overlap the visible window (plus a margin), so only those are
- * drawn. `placed` is in feed order, which is roughly top-to-bottom, so this is
- * a simple scan — fast enough for thousands of posts.
- */
-export function visibleRange(placed: Placed[], top: number, bottom: number): Placed[] {
-  return placed.filter((p) => p.y < bottom && p.y + p.h > top);
-}

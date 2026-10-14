@@ -7,8 +7,9 @@
  *  An asymmetrical wall of posts — live looks from Vogue Runway, Pinterest, the
  *  houses' YouTube shows and museum archives, mixed with the app's own runway
  *  looks and garments — that slowly scrolls itself downward and never ends.
- *  Hover a post (or click it) and it opens as a stack of cards on the next
- *  page, ready to pick pieces from.
+ *  Click a post and it opens as a stack of cards on the next page, ready to
+ *  pick pieces from. (Nothing opens on its own: resting the mouse on a post
+ *  does nothing — only a click or tap opens it.)
  *
  *  HOW IT WORKS (one job per file)
  *    feed/posts.ts        what comes next — the queues and the rhythm
@@ -20,11 +21,10 @@
  *    1. builds the queues from the live feed + the catalog, ranked by Muse
  *    2. deals posts in batches of BATCH whenever you get near the bottom
  *    3. draws ONLY the posts near the screen (so it can run for hours)
- *    4. runs the hover-to-open timer and hands the post to the outfit builder
+ *    4. hands a clicked post to the outfit builder
  *
  *  TWEAK
  *    BATCH            posts added each time you near the bottom
- *    HOVER_OPEN_MS    how long to rest on a post before it opens (null = off)
  *    DRAW_ABOVE/BELOW how far off-screen posts are still drawn
  */
 
@@ -48,8 +48,6 @@ import { FeedCard } from "./FeedCard";
 
 /** Posts added each time you get near the bottom. TWEAK */
 const BATCH = 24;
-/** Rest the pointer on a post this long (ms) to open it. `null` turns hover-to-open off. TWEAK */
-export const HOVER_OPEN_MS: number | null = 1100;
 /** How far above / below the screen posts are still drawn, in px. */
 const DRAW_ABOVE = 900;
 const DRAW_BELOW = 1500;
@@ -76,11 +74,12 @@ export function Feed({ section, filter, vibe }: FeedProps) {
   useEffect(() => setActiveFeed(viewId), [viewId]);
 
   // ── 1. The queues, best first ────────────────────────────────────────────
-  const pools = useMemo<FeedPools>(() => {
+  // Two separate memos on purpose. The live sources answer one by one, and
+  // each answer changes `live.items`; ranking the whole runway catalog again
+  // every time was the slowest thing on the home page. Now the catalog is only
+  // re-ranked when your taste, the section or the vibe changes.
+  const catalogPools = useMemo(() => {
     const args = { section, state: taste.state, crowd: taste.crowd, dismissed: taste.dismissed, vibe };
-    const liveRanked = rankLive({ items: live.items, section, state: taste.state, crowd: taste.crowd, dismissed: live.dismissed }).filter(
-      (i) => !vibe || liveVibes(i).includes(vibe),
-    );
     const looks = rankLooks({ ...args, limit: 999, perShow: 99 }).map(({ look, reason }) => ({ look, reason }));
     const pieces = rankPieces(args).map(({ piece }) => ({ piece }));
     const prompts = categoriesFor(section)
@@ -91,8 +90,18 @@ export function Feed({ section, filter, vibe }: FeedProps) {
         piece: pieces.find((p) => p.piece.category === c.id)?.piece,
       }))
       .filter((p) => p.piece);
-    return filterPools({ live: liveRanked, looks, pieces, prompts }, filter);
-  }, [live.items, live.dismissed, section, taste.state, taste.crowd, taste.dismissed, vibe, filter]);
+    return { looks, pieces, prompts };
+  }, [section, taste.state, taste.crowd, taste.dismissed, vibe]);
+
+  const liveRanked = useMemo(
+    () =>
+      rankLive({ items: live.items, section, state: taste.state, crowd: taste.crowd, dismissed: live.dismissed }).filter(
+        (i) => !vibe || liveVibes(i).includes(vibe),
+      ),
+    [live.items, live.dismissed, section, taste.state, taste.crowd, vibe],
+  );
+
+  const pools = useMemo<FeedPools>(() => filterPools({ live: liveRanked, ...catalogPools }, filter), [liveRanked, catalogPools, filter]);
 
   // A filtered view that ran out may have new posts once the live feed refreshes.
   useEffect(() => {
@@ -219,9 +228,17 @@ export function Feed({ section, filter, vibe }: FeedProps) {
   const { holdFor } = auto;
   useEffect(() => holdFor(2500), [holdFor]);
 
-  // ── 6. Opening a post (click, or rest the pointer on it) ─────────────────
+  // ── 6. Opening a post (click or tap — never by hovering) ─────────────────
+  // Read through refs so `open` and `measure` never change. Every card gets
+  // them as props, and a changed prop would re-draw every card on the wall.
+  const appRef = useRef(app);
+  appRef.current = app;
+  const postsRef = useRef(postsByKey);
+  postsRef.current = postsByKey;
+
   const open = useCallback(
     (post: Post, card: HTMLElement) => {
+      const app = appRef.current;
       const media = card.querySelector(".feed-card-media") ?? card;
       const r = media.getBoundingClientRect();
       setHandoff({ left: r.left, top: r.top, width: r.width, height: r.height });
@@ -242,60 +259,24 @@ export function Feed({ section, filter, vibe }: FeedProps) {
           break;
       }
     },
-    [app, memory],
+    [memory],
   );
 
-  const [dwellKey, setDwellKey] = useState<string | null>(null);
-  const dwell = useRef<{ key: string; timer: number } | null>(null);
   const lastPointer = useRef<{ x: number; y: number } | null>(null);
 
-  const cancelDwell = useCallback(() => {
-    if (!dwell.current) return;
-    window.clearTimeout(dwell.current.timer);
-    dwell.current = null;
-    setDwellKey(null);
-    auto.release(1500);
-  }, [auto]);
-
-  // Scrolling while resting on a post moves a different post under the pointer: start over.
-  useEffect(() => {
-    const onWheel = () => cancelDwell();
-    window.addEventListener("wheel", onWheel, { passive: true });
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      if (dwell.current) window.clearTimeout(dwell.current.timer);
-    };
-  }, [cancelDwell]);
-
+  // Moving the mouse over the wall pauses the drift for a moment, so the post
+  // you're aiming at doesn't slide away. It never opens anything by itself.
   const onPointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (e.pointerType !== "mouse") return; // touch & pen: tap to open
+      if (e.pointerType !== "mouse") return;
       // Browsers send a "move" when the page scrolls under a still mouse — ignore
-      // those, so the drift never opens a post on its own.
+      // those, or the drift would keep pausing itself.
       const last = lastPointer.current;
       if (last && last.x === e.clientX && last.y === e.clientY) return;
       lastPointer.current = { x: e.clientX, y: e.clientY };
       auto.holdFor(RESUME_AFTER_POINTER_MS);
-
-      const target = e.target as Element;
-      const card = target.closest<HTMLElement>("[data-post-key]");
-      const key = card && !target.closest("[data-no-dwell]") ? (card.dataset.postKey ?? null) : null;
-      if (key === (dwell.current?.key ?? null)) return;
-      cancelDwell();
-      if (!key || !card || HOVER_OPEN_MS === null) return;
-      const post = postsByKey.get(key);
-      if (!post || memory.hidden.has(key)) return;
-      auto.hold();
-      const timer = window.setTimeout(() => {
-        dwell.current = null;
-        setDwellKey(null);
-        auto.release(0);
-        open(post, card);
-      }, HOVER_OPEN_MS);
-      dwell.current = { key, timer };
-      setDwellKey(key);
     },
-    [auto, cancelDwell, open, postsByKey, memory],
+    [auto],
   );
 
   // ── 7. "Not for me" and measured picture shapes ──────────────────────────
@@ -307,12 +288,11 @@ export function Feed({ section, filter, vibe }: FeedProps) {
       } else if (post.type === "piece") {
         taste.dismissPiece(post.piece, section);
       } else return;
-      cancelDwell();
       memory.hidden.add(post.key);
       bump();
       toast.push({ message: "Noted — Muse will show fewer like that." });
     },
-    [taste, section, toast, memory, cancelDwell],
+    [taste, section, toast, memory],
   );
 
   const pending = useRef(new Map<string, number>());
@@ -320,7 +300,7 @@ export function Feed({ section, filter, vibe }: FeedProps) {
   const measure = useCallback(
     (key: string, aspect: number) => {
       const next = clampAspect(aspect);
-      const now = memory.aspects.get(key) ?? postsByKey.get(key)?.aspect ?? next;
+      const now = memory.aspects.get(key) ?? postsRef.current.get(key)?.aspect ?? next;
       if (Math.abs(next - now) / now < 0.03) return;
       pending.current.set(key, next);
       // Many pictures load at once: re-lay out once per frame, not once per picture.
@@ -333,7 +313,7 @@ export function Feed({ section, filter, vibe }: FeedProps) {
         });
       }
     },
-    [memory, postsByKey],
+    [memory],
   );
   useEffect(() => () => cancelAnimationFrame(pendingRaf.current), []);
 
@@ -352,12 +332,11 @@ export function Feed({ section, filter, vibe }: FeedProps) {
     <section className="feed" aria-label="The feed">
       <div
         ref={wallRef}
-        className={`feed-wall${auto.moving ? " is-drifting" : ""}`}
+        className="feed-wall"
         role="feed"
         aria-busy={!ready || live.loading}
         style={{ height: Math.max(layout.height, ready ? 0 : 900) }}
         onPointerMove={onPointerMove}
-        onPointerLeave={cancelDwell}
       >
         {!ready && <Skeletons width={width} />}
         {visible.map(({ place, index }) => {
@@ -372,8 +351,6 @@ export function Feed({ section, filter, vibe }: FeedProps) {
               section={section}
               hidden={memory.hidden.has(post.key)}
               fresh={post.type === "live" && live.freshIds.has(post.item.id)}
-              dwelling={dwellKey === post.key}
-              dwellMs={HOVER_OPEN_MS ?? 0}
               onOpen={open}
               onDismiss={dismiss}
               onMeasure={measure}
