@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+  Where Pinterest sends the browser back after "Connect Pinterest"
+  (<site>/pinterest/callback/?code=…). It loads the same app as index.html;
+  src/main.tsx sees this address and shows the small "Connecting Pinterest…"
+  page (components/PinterestCallback.tsx). It exists as a real file so it
+  works on any static host (GitHub Pages has no URL rewriting).
+-->
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' https:; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connecting Pinterest · What to Wear</title>
+    <meta name="description" content="Pick one piece and build the whole outfit from real runway looks — a taste-learning outfit builder with a runway finish." />
+    <meta name="theme-color" content="#f6f1ea" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="/i-dont-know-what-to-wear/assets/main-ndNUWkD2.js"></script>
+    <link rel="stylesheet" crossorigin href="/i-dont-know-what-to-wear/assets/main-B4sNNJZ0.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
