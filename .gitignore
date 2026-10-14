@@ -3,3 +3,11 @@ dist
 .DS_Store
 *.local
 .env
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+
+# Firebase CLI caches
+.firebase/
+firebase-debug.log

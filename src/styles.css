@@ -1,349 +1,94 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles.css — the entry point for ALL styling
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ *  HOW STYLING IS ORGANISED
+ *  This file only does three things: loads your Zaslia font, defines the design
+ *  TOKENS (colours, fonts, spacing — change them here and the whole site
+ *  follows), and imports one CSS file per area of the app:
+ *
+ *      styles/base.css      resets, typography, buttons, chips, photos, toasts
+ *      styles/topbar.css    the header + mobile tab bar + section switch
+ *      styles/gate.css      the Menswear / Womenswear split screen
+ *      styles/home.css      the personalised home page
+ *      styles/builder.css   the question flow + look board
+ *      styles/runway.css    the dark runway stage
+ *      styles/closet.css    saved outfits
+ *      styles/muse.css      the "what I've learned" drawer
+ *      styles/feed.css      the endless, drifting home feed
+ *      styles/deck.css      the stack of cards on the look board
+ *      styles/about.css     the About page (sources, Pinterest connection)
+ *
+ *  Each component's class names start with its area (`.gate-…`, `.home-…`,
+ *  `.builder-…`) so you can search for a class and land in the right file.
+ *
+ *  QUICK THEMING
+ *    --accent   the green (buttons, highlights)
+ *    --paper    page background          --ink    text & dark surfaces
+ *    --stage    the dark runway colour   --gold   runway highlight
+ */
+
+/* All feature stylesheets (these @imports must stay at the very top). */
+@import "./styles/base.css";
+@import "./styles/topbar.css";
+@import "./styles/gate.css";
+@import "./styles/home.css";
+@import "./styles/builder.css";
+@import "./styles/runway.css";
+@import "./styles/closet.css";
+@import "./styles/muse.css";
+@import "./styles/feed.css";
+@import "./styles/deck.css";
+@import "./styles/about.css";
+
+/* Your display font (free for personal use — see src/assets licence file). */
+@font-face {
+  font-family: "Zaslia";
+  src: url("./assets/Zaslia.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  /* ── Colour ─────────────────────────────────────────────── */
   --ink: #161412;
+  --ink-soft: #2b2622;
   --paper: #f6f1ea;
   --paper-2: #efe7db;
+  --paper-3: #e4d9c6;
   --line: rgba(22, 20, 18, 0.12);
-  --accent: #c45c26;
+  --line-strong: rgba(22, 20, 18, 0.28);
   --muted: #6d675f;
-}
 
-* {
-  box-sizing: border-box;
-}
+  --accent: #26c472;
+  --accent-deep: #0f8a4b; /* green dark enough to read as text on paper */
+  --accent-soft: rgba(38, 196, 114, 0.14);
 
-html,
-body,
-#root {
-  margin: 0;
-  min-height: 100%;
-}
+  --stage: #0d0c0b;
+  --stage-2: #1a1816;
+  --stage-line: rgba(246, 241, 234, 0.14);
+  --gold: #d9b56d;
 
-body {
-  font-family: Manrope, system-ui, sans-serif;
-  background: var(--paper);
-  color: var(--ink);
-}
+  --danger: #b3382c;
 
-a {
-  color: inherit;
-}
+  /* ── Type ───────────────────────────────────────────────── */
+  --font-display: "Zaslia", "Cormorant Garamond", Georgia, serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-body: Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Zaslia is a hairline display face: gorgeous big, thin when small.
+     Anything under ~28px uses this semibold serif instead. */
+  --font-label: "Cormorant Garamond", Georgia, serif;
 
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+  /* ── Space & shape ──────────────────────────────────────── */
+  --pad: clamp(18px, 4vw, 44px); /* page side padding */
+  --topbar-h: 68px;
+  --radius: 4px;
+  --radius-lg: 14px;
+  --pill: 999px;
 
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 22px 32px;
-  border-bottom: 1px solid var(--line);
-}
-
-.mark {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 28px;
-  letter-spacing: 0.02em;
-}
-
-.mark span {
-  font-style: italic;
-  color: var(--accent);
-}
-
-.topbar nav {
-  display: flex;
-  gap: 22px;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.hero {
-  padding: 56px 32px 28px;
-  max-width: 920px;
-}
-
-.hero p.kicker {
-  margin: 0 0 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: var(--accent);
-}
-
-.hero h1 {
-  margin: 0;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(42px, 7vw, 84px);
-  font-weight: 500;
-  line-height: 0.95;
-}
-
-.hero h1 em {
-  font-style: italic;
-}
-
-.hero .lede {
-  margin: 18px 0 0;
-  max-width: 540px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.categories {
-  display: flex;
-  gap: 10px;
-  padding: 8px 32px 28px;
-  overflow-x: auto;
-}
-
-.cat {
-  flex: 0 0 auto;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--ink);
-  padding: 14px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  text-align: left;
-  min-width: 148px;
-}
-
-.cat strong {
-  display: block;
-  font-size: 14px;
-}
-
-.cat span {
-  display: block;
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.cat.active {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
-}
-
-.cat.active span {
-  color: rgba(246, 241, 234, 0.7);
-}
-
-.grid-wrap {
-  padding: 0 32px 140px;
-}
-
-.grid-head {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 18px;
-}
-
-.grid-head h2 {
-  margin: 0;
-  font-family: "Cormorant Garamond", serif;
-  font-size: 32px;
-  font-weight: 500;
-}
-
-.grid-head p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-.card {
-  border: 0;
-  padding: 0;
-  background: var(--paper-2);
-  text-align: left;
-  cursor: pointer;
-  overflow: hidden;
-  position: relative;
-}
-
-.card img {
-  width: 100%;
-  height: 320px;
-  object-fit: cover;
-  display: block;
-  background: #ddd4c6;
-}
-
-.card figcaption {
-  padding: 14px 14px 16px;
-}
-
-.card h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.card .meta {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.card.picked::after {
-  content: "Picked";
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: var(--accent);
-  color: white;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 5px 8px;
-  border-radius: 999px;
-}
-
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(22, 20, 18, 0.45);
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  z-index: 20;
-}
-
-.sheet {
-  width: min(880px, 100%);
-  background: var(--paper);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  max-height: 86vh;
-  overflow: hidden;
-}
-
-.sheet img {
-  width: 100%;
-  height: 86vh;
-  max-height: 86vh;
-  object-fit: cover;
-}
-
-.sheet-body {
-  padding: 28px;
-}
-
-.sheet-body h2 {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 40px;
-  margin: 8px 0 6px;
-  font-weight: 500;
-}
-
-.credit {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.sources {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 22px 0;
-}
-
-.sources a,
-.pick,
-.close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  border: 1px solid var(--line);
-  padding: 10px 14px;
-  font-size: 13px;
-  background: transparent;
-  cursor: pointer;
-}
-
-.pick {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
-  width: 100%;
-  margin-top: 8px;
-}
-
-.close {
-  margin-top: 10px;
-  width: 100%;
-}
-
-.tray {
-  position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: 16px;
-  background: var(--ink);
-  color: var(--paper);
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  padding: 12px 16px;
-  z-index: 10;
-}
-
-.tray h3 {
-  margin: 0;
-  font-family: "Cormorant Garamond", serif;
-  font-size: 22px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.picks {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  flex: 1;
-}
-
-.picks img {
-  width: 54px;
-  height: 54px;
-  object-fit: cover;
-}
-
-.clear {
-  background: transparent;
-  color: var(--paper);
-  border: 1px solid rgba(246, 241, 234, 0.3);
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-@media (max-width: 760px) {
-  .sheet {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar nav {
-    display: none;
-  }
-
-  .hero,
-  .categories,
-  .grid-wrap {
-    padding-left: 18px;
-    padding-right: 18px;
-  }
+  /* ── Motion (CSS side; the JS side uses the `motion` library) ── */
+  --ease-out: cubic-bezier(0.22, 0.9, 0.24, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }

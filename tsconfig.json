@@ -1,3 +1,9 @@
+// TypeScript settings. (tsconfig files may contain comments.)
+//
+// TypeScript is JavaScript plus *types*: it checks, before the site ever runs,
+// that e.g. you never write "baggie" where only "baggy" is allowed. These
+// options say how strict that checking is. `npm run build` and
+// `npm run typecheck` run it; Vite itself only strips the types.
 {
   "compilerOptions": {
     "target": "ES2022",
@@ -5,16 +11,26 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+
+    // How imports are resolved — "bundler" matches how Vite works.
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
+
+    // TypeScript only CHECKS; Vite does the actual building.
     "noEmit": true,
+
+    // React 17+ style JSX (no need to `import React` in every file).
     "jsx": "react-jsx",
+
+    // The important bit: "strict" turns on the full set of safety checks.
+    // The three below additionally flag unused variables and fall-through bugs.
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
+  // Only files under src/ are checked (that includes the *.test.ts files).
   "include": ["src"]
 }

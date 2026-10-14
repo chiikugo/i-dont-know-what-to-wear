@@ -1,0 +1,243 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles/muse.css — the "what I've learned" drawer
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+.muse-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(13, 12, 11, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+.muse {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  width: min(480px, 100vw);
+  padding: clamp(20px, 3vw, 32px);
+  overflow-y: auto;
+  display: grid;
+  gap: 22px;
+  align-content: start;
+  background: var(--paper);
+  border-left: 1px solid var(--line-strong);
+  box-shadow: -30px 0 60px -30px rgba(0, 0, 0, 0.45);
+}
+
+.muse-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.muse-head h2 {
+  font-size: clamp(30px, 4vw, 40px);
+  line-height: 1;
+  margin-top: 6px;
+}
+
+.muse-close {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  font-size: 13px;
+  flex: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.muse-close:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.muse-lede {
+  color: var(--muted);
+  font-size: 14.5px;
+}
+
+.muse-stats {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  margin: 0;
+  padding: 16px 0;
+  border-block: 1px solid var(--line);
+}
+
+.muse-stats dt {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.muse-stats dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.muse-stat-small {
+  font-family: var(--font-body) !important;
+  font-size: 13.5px !important;
+  line-height: 1.4 !important;
+  font-weight: 500;
+}
+
+.muse-empty {
+  padding: 16px 18px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.muse-columns {
+  display: grid;
+  gap: 22px;
+}
+
+.muse-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.muse-bars ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 9px;
+}
+
+.muse-bars li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+}
+
+.muse-bar-label {
+  font-weight: 600;
+}
+
+.muse-bar-label::first-letter {
+  text-transform: uppercase;
+}
+
+.muse-bar-track {
+  display: block;
+  height: 8px;
+  border-radius: 8px;
+  background: var(--paper-2);
+  overflow: hidden;
+}
+
+.muse-bar {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.muse-bar-like {
+  background: var(--accent);
+}
+
+.muse-bar-skip {
+  background: var(--line-strong);
+}
+
+.muse-none {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.muse-toggle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.muse-toggle input {
+  margin-top: 4px;
+  accent-color: var(--accent-deep);
+  width: 18px;
+  height: 18px;
+}
+
+.muse-toggle strong {
+  display: block;
+  font-size: 14px;
+}
+
+.muse-toggle small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.muse-how {
+  font-size: 14px;
+}
+
+.muse-how summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 4px 0;
+}
+
+.muse-how ol {
+  margin: 10px 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  color: var(--ink-soft);
+}
+
+.muse-how p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.muse-how code {
+  font-size: 12px;
+  background: var(--paper-2);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.muse-reset {
+  justify-self: start;
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.muse-reset:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

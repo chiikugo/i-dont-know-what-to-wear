@@ -1,0 +1,253 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles/home.css — the home page header (the feed itself is in feed.css)
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  Component: components/Home.tsx
+ */
+
+.home {
+  padding-bottom: 96px;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+.home-hero {
+  padding: clamp(28px, 5vw, 64px) var(--pad) 18px;
+  max-width: 1180px;
+  display: grid;
+  gap: 12px;
+}
+
+.home-hero-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.home-site-links {
+  display: flex;
+  gap: 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.home-site-links a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.home-site-links a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.home-title {
+  font-size: clamp(40px, 6.6vw, 96px);
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.home-title em {
+  font-weight: 500;
+}
+
+.home-lede {
+  max-width: 66ch;
+  font-size: clamp(15px, 1.5vw, 18px);
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.home-lede-mark {
+  color: var(--accent-deep);
+}
+
+/* ── Live status line ──────────────────────────────────── */
+.live-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.live-status strong {
+  color: var(--danger);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.live-status a {
+  color: inherit;
+}
+
+/* The red "on air" dot. It pulses gently; faster while refreshing. */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  box-shadow: 0 0 0 0 rgba(200, 55, 45, 0.5);
+  animation: live-pulse 2.4s ease-out infinite;
+}
+
+.live-dot.is-loading {
+  animation-duration: 0.9s;
+}
+
+@keyframes live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(200, 55, 45, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(200, 55, 45, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(200, 55, 45, 0);
+  }
+}
+
+.live-refresh {
+  margin-left: 4px;
+  font-size: 12px;
+}
+
+/* ── Chips ─────────────────────────────────────────────── */
+.home-chips {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.mood-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-chips-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.chip-sm {
+  padding: 6px 11px;
+  font-size: 12px;
+}
+
+/* ── "Start with" + archive links ──────────────────────── */
+.home-start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  margin-top: 4px;
+  font-size: 13.5px;
+}
+
+.home-start-link {
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  font-family: var(--font-label);
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 4px;
+}
+
+.home-start-link:hover {
+  text-decoration-color: var(--accent-deep);
+  color: var(--accent-deep);
+}
+
+.home-start-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--line-strong);
+  align-self: center;
+}
+
+.home-archive-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.home-archive-link:hover {
+  color: var(--ink);
+}
+
+/* ── Continue card ─────────────────────────────────────── */
+.continue {
+  overflow: hidden;
+  padding: 0 var(--pad);
+  margin-top: 4px;
+}
+
+.continue-inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--paper-2);
+  max-width: 880px;
+}
+
+.continue-thumbs {
+  display: flex;
+}
+
+.continue-thumb {
+  width: 44px;
+  height: 58px;
+  margin-left: -10px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid var(--paper-2);
+}
+
+.continue-thumb:first-child {
+  margin-left: 0;
+}
+
+.continue-copy {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.continue-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  /* One scrolling line of chips on phones instead of three wrapped rows. */
+  .home-chips .mood-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(-1 * var(--pad));
+    padding: 2px var(--pad);
+    scrollbar-width: none;
+  }
+  .home-chips .mood-row > * {
+    flex: none;
+  }
+}

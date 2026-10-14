@@ -1,0 +1,388 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles/feed.css — the endless, drifting home wall
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  Components: components/feed/Feed.tsx and FeedCard.tsx.
+ *  Positions come from feed/masonry.ts (each card is placed with transform);
+ *  this file only styles what's inside a card.
+ *
+ *  TWEAK
+ *    caption height     → .feed-card-caption (keep in step with CAPTION_H in feed/posts.ts)
+ *    hover lift         → .feed-card:hover .feed-card-media
+ *    the open-bar       → .feed-card-dwell + @keyframes feed-dwell
+ *    the Pause button   → .feed-drift
+ */
+
+.feed {
+  padding: 18px var(--pad) 0;
+}
+
+.feed-wall {
+  position: relative;
+}
+
+/* ── A card ────────────────────────────────────────────── */
+.feed-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  contain: layout style;
+}
+
+.feed-card-hit {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  position: relative;
+  animation: feed-in 0.6s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes feed-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+.feed-card-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--paper-2);
+  transition:
+    transform 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out);
+}
+
+.feed-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pins & museum photos: never cropped (the box takes the picture's own shape). */
+.feed-card.is-natural .feed-card-media img {
+  object-fit: contain;
+}
+
+.feed-card:hover .feed-card-media,
+.feed-card-hit:focus-visible .feed-card-media {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 40px -24px rgba(22, 20, 18, 0.55);
+}
+
+.feed-card-fallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 12px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.feed-card-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  display: grid;
+  place-items: center;
+  padding-left: 4px;
+  border-radius: 50%;
+  background: rgba(13, 12, 11, 0.72);
+  color: var(--paper);
+  font-size: 18px;
+}
+
+/* ── Caption (under the picture — never on top of a pin) ── */
+.feed-card-caption {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  padding: 9px 30px 0 1px;
+  overflow: hidden;
+}
+
+.feed-card-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.feed-card-kind {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.feed-card-new {
+  padding: 1px 6px;
+  border-radius: var(--pill);
+  background: var(--accent);
+  color: var(--ink);
+  letter-spacing: 0.08em;
+}
+
+.feed-card-where {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feed-card-opening {
+  display: none;
+  color: var(--accent-deep);
+}
+
+.feed-card.is-dwelling .feed-card-where {
+  display: none;
+}
+
+.feed-card.is-dwelling .feed-card-opening {
+  display: inline;
+}
+
+.feed-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-family: var(--font-label);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.12;
+  color: var(--ink);
+}
+
+.feed-card-note {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* The open-bar: fills while the pointer rests on the card. */
+.feed-card-dwell {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.feed-card.is-dwelling .feed-card-dwell {
+  animation: feed-dwell var(--dwell-ms, 1100ms) linear forwards;
+}
+
+@keyframes feed-dwell {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* "Not for me" — in the caption corner, so it never covers a picture. */
+.feed-card-dismiss {
+  position: absolute;
+  right: 0;
+  bottom: 34px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-out);
+}
+
+.feed-card:hover .feed-card-dismiss,
+.feed-card-dismiss:focus-visible {
+  opacity: 1;
+}
+
+.feed-card-dismiss:hover {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+@media (hover: none) {
+  .feed-card-dismiss {
+    opacity: 0.85;
+  }
+}
+
+/* A card you said "not for me" to. */
+.feed-card-hidden {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  height: 100%;
+  padding: 16px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 3px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.feed-card-hidden span {
+  color: var(--accent-deep);
+  font-style: normal;
+}
+
+/* Loading placeholders. */
+.feed-card--skeleton {
+  border-radius: 3px;
+  background: linear-gradient(110deg, var(--paper-2) 30%, var(--paper-3) 50%, var(--paper-2) 70%);
+  background-size: 200% 100%;
+  animation: photo-shimmer 1.6s linear infinite;
+}
+
+/* ── "Start a look with…" tiles ────────────────────────── */
+.feed-prompt {
+  position: relative;
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.feed-prompt-photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+}
+
+.feed-prompt-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 12, 11, 0) 30%, rgba(13, 12, 11, 0.85) 100%);
+}
+
+.feed-prompt-words {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  gap: 4px;
+}
+
+.feed-prompt-words .eyebrow {
+  color: var(--accent);
+}
+
+.feed-prompt-title {
+  font-size: clamp(28px, 2.6vw, 40px);
+  line-height: 0.95;
+}
+
+.feed-prompt-hint {
+  font-size: 12.5px;
+  color: rgba(246, 241, 234, 0.75);
+}
+
+.feed-prompt-go {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 22px;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.feed-card:hover .feed-prompt-go {
+  transform: translateX(4px);
+}
+
+/* ── End of a filtered view ────────────────────────────── */
+.feed-end {
+  max-width: 520px;
+  margin: 40px auto 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+/* ── The Pause / Auto-scroll button ────────────────────── */
+.feed-drift {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 150;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--ink);
+  border-radius: var(--pill);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.6);
+}
+
+.feed-drift.is-off {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.feed-drift-icon {
+  font-size: 10px;
+}
+
+@media (max-width: 860px) {
+  .feed-drift {
+    /* Above the phone tab bar. */
+    bottom: calc(86px + env(safe-area-inset-bottom));
+    right: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .feed {
+    padding-top: 12px;
+  }
+  .feed-card-title {
+    font-size: 15.5px;
+  }
+  .feed-card-meta {
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+  }
+}

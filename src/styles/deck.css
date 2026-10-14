@@ -1,0 +1,466 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles/deck.css — the outfit as a stack of cards (the look board)
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  Components: components/builder/CardDeck.tsx, CardPanel.tsx, LookBoard.tsx.
+ *  Where each card sits (stacked / fanned) is computed in deckLayout.ts and
+ *  animated by the `motion` library — this file is how a card LOOKS.
+ *
+ *  TWEAK
+ *    card look        → .deck-card-hit (border, corners, shadow)
+ *    label strip      → .deck-card-label (keep its height = 48px, see CardDeck.tsx)
+ *    options panel    → .card-panel
+ */
+
+.deck-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+}
+
+/* A card is open: the stack on the left, its options on the right. */
+.deck-stage.has-panel {
+  grid-template-columns: minmax(0, 1.1fr) minmax(330px, 0.9fr);
+}
+
+.deck {
+  position: relative;
+  /* Vertical swipes scroll the page; sideways slides pick a card (CardDeck.tsx). */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.deck-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
+
+/* The fly-in from the home feed scales from the top-left corner. */
+.deck-card-fly {
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+}
+
+.deck-card-hit {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
+  text-align: left;
+  box-shadow:
+    0 22px 44px -26px rgba(22, 20, 18, 0.6),
+    0 2px 6px rgba(22, 20, 18, 0.08);
+  transition: box-shadow 0.3s var(--ease-out);
+}
+
+.deck.is-fanned .deck-card-hit:hover {
+  box-shadow:
+    0 30px 60px -28px rgba(22, 20, 18, 0.7),
+    0 4px 10px rgba(22, 20, 18, 0.1);
+}
+
+.deck-card.is-open .deck-card-hit {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 3px;
+}
+
+.deck-card-photo {
+  position: relative;
+  display: block;
+  flex: none;
+  overflow: hidden;
+  background: var(--paper-2);
+}
+
+.deck-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pins & museum photos are never cropped. */
+.deck-card-photo.is-natural img {
+  object-fit: contain;
+}
+
+/* YouTube's thumbnails have black bars above and below the film: zoom past them. */
+.deck-card-photo.is-video img {
+  transform: scale(1.34);
+}
+
+/* On the stack page the look's name is the headline, the stack the hero. */
+.board .board-name {
+  font-size: clamp(36px, 5.4vw, 78px);
+}
+
+.board .board-head {
+  margin-bottom: 4px;
+}
+
+.board .board-facts {
+  margin-top: 26px;
+}
+
+.deck-card-label {
+  height: 48px;
+  flex: none;
+  display: grid;
+  align-content: center;
+  gap: 1px;
+  padding: 0 12px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.deck-card-slot {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deck-card-title {
+  font-family: var(--font-label);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deck-card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 9px;
+  border-radius: var(--pill);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.deck-card-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  display: grid;
+  place-items: center;
+  padding-left: 4px;
+  border-radius: 50%;
+  background: rgba(13, 12, 11, 0.72);
+  color: var(--paper);
+  font-size: 19px;
+}
+
+.deck-card-fallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 14px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--muted);
+}
+
+.deck-hint {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--muted);
+  grid-column: 1 / -1;
+}
+
+.deck-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--muted);
+}
+
+/* ── "Add …" buttons ───────────────────────────────────── */
+.deck-adds {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.deck-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--pill);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.deck-add:hover {
+  border-style: solid;
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--paper-2);
+}
+
+.board-missing {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+/* ── The options panel ─────────────────────────────────── */
+.card-panel {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  padding: 26px 26px 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: 0 30px 60px -40px rgba(22, 20, 18, 0.55);
+}
+
+.card-panel-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--paper);
+  font-size: 13px;
+}
+
+.card-panel-close:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.card-panel-title {
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1;
+  padding-right: 40px;
+}
+
+.card-panel-house {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.card-panel-house span {
+  color: var(--muted);
+}
+
+.card-panel-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.card-panel-why {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.card-panel-why li::before {
+  content: "✦ ";
+  color: var(--accent-deep);
+}
+
+.card-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 15px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    background 0.2s var(--ease-out),
+    color 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out);
+}
+
+.card-btn:hover {
+  border-color: var(--ink);
+}
+
+.card-btn.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.card-btn.is-danger:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--paper);
+}
+
+.card-panel-change {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.card-alts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 12px 10px;
+}
+
+.card-alt {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.card-alt-photo {
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: 6px;
+  overflow: hidden;
+  transition:
+    transform 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
+}
+
+.card-alt:hover .card-alt-photo,
+.card-alt:focus-visible .card-alt-photo {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 26px -16px rgba(22, 20, 18, 0.6);
+}
+
+.card-alt-title {
+  font-family: var(--font-label);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.card-alt-house {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.card-panel-video {
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.card-panel-video iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.card-panel-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+}
+
+.card-panel-link {
+  font-weight: 700;
+}
+
+.card-panel-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Phone: the options slide up from the bottom ───────── */
+.card-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(13, 12, 11, 0.45);
+}
+
+.card-sheet {
+  width: 100%;
+  max-height: 84dvh;
+  overflow-y: auto;
+  border-radius: 18px 18px 0 0;
+  background: var(--paper);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.card-sheet .card-panel {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (max-width: 899px) {
+  .deck-stage,
+  .deck-stage.has-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

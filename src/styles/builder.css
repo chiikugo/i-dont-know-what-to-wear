@@ -1,0 +1,439 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles/builder.css — the Build page: start grid, question flow, look board
+ *  (the stack of cards itself is in styles/deck.css)
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+.builder {
+  padding: clamp(20px, 3vw, 40px) var(--pad) 72px;
+}
+
+/* ═══ 1. Start: "What are we building around?" ═════════════════════════ */
+.start-head {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  margin-bottom: clamp(24px, 4vw, 44px);
+}
+
+.start-head h1 {
+  font-size: clamp(36px, 6vw, 76px);
+  line-height: 0.96;
+}
+
+.start-lede {
+  color: var(--muted);
+  max-width: 58ch;
+  font-size: clamp(14.5px, 1.3vw, 16.5px);
+}
+
+.start-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(150px, 18vw, 220px), 1fr));
+  gap: clamp(14px, 2vw, 24px);
+}
+
+.start-card {
+  display: grid;
+  gap: 5px;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.start-card-photo {
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--paper-2);
+}
+
+.start-card-photo img,
+.start-card-photo svg {
+  transition: transform 0.9s var(--ease-out);
+}
+
+.start-card:hover .start-card-photo img,
+.start-card:hover .start-card-photo svg {
+  transform: scale(1.06);
+}
+
+.start-card-label {
+  margin-top: 6px;
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.05;
+}
+
+.start-card-hint {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* ═══ 2. Step: photo on the left, question on the right ═══════════════ */
+.step {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: start;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.step-hero {
+  position: sticky;
+  top: calc(var(--topbar-h) + 20px);
+  display: grid;
+  gap: 16px;
+}
+
+.step-hero-frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  max-height: calc(100dvh - var(--topbar-h) - 190px);
+  min-height: 320px;
+  margin: 0 auto;
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--paper-2);
+  box-shadow: 0 30px 60px -36px rgba(22, 20, 18, 0.55);
+}
+
+.step-hero-photo {
+  position: absolute;
+  inset: 0;
+}
+
+.step-hero-slot {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 7px 12px;
+  border-radius: var(--pill);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter: blur(6px);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.step-hero-caption {
+  min-height: 92px;
+}
+
+.step-hero-title {
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1.05;
+}
+
+.step-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+/* "From Max Mara · Fall 2019 Ready-to-Wear  Wear the whole look →" */
+.step-hero-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0 0 8px;
+  font-family: var(--font-label);
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.step-hero-source strong {
+  font-weight: 700;
+}
+
+.step-hero-wear {
+  font-family: var(--font-body, inherit);
+  font-size: 12.5px;
+}
+
+/* Right-hand panel */
+.step-panel {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+  padding-top: 4px;
+}
+
+.step-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.step-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.step-dot {
+  width: 22px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--line-strong);
+  transition: background 0.35s var(--ease-out);
+}
+
+.step-dot.is-done {
+  background: var(--accent-deep);
+}
+
+.step-dot.is-current {
+  background: var(--ink);
+}
+
+.step-cats,
+.step-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.step-chips:empty {
+  display: none;
+}
+
+.chip-muted {
+  color: var(--muted);
+  border-style: dashed;
+}
+
+.step-question {
+  font-size: clamp(30px, 3.7vw, 54px);
+  line-height: 1;
+  margin: 8px 0 20px;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: clamp(12px, 1.6vw, 20px);
+}
+
+/* Fewer, bigger cards when there are only two or three choices. */
+.option-grid[data-count="2"],
+.option-grid[data-count="3"] {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+/* Four fit in one row; more than that get smaller cards. */
+.option-grid[data-count="4"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.option-grid:not([data-count="1"]):not([data-count="2"]):not([data-count="3"]):not([data-count="4"]) {
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+}
+
+@media (max-width: 560px) {
+  .option-grid[data-count="4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.option-card {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  border: 0;
+  padding: 0;
+  background: none;
+}
+
+.option-card-photo {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--paper-2);
+  box-shadow: 0 0 0 0 var(--ink);
+  transition: box-shadow 0.25s var(--ease-out);
+}
+
+.option-card:hover .option-card-photo,
+.option-card:focus-visible .option-card-photo {
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+.option-card-photo img,
+.option-card-photo svg {
+  transition: transform 0.8s var(--ease-out);
+}
+
+.option-card:hover .option-card-photo img,
+.option-card:hover .option-card-photo svg {
+  transform: scale(1.05);
+}
+
+.option-card-swatches {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 5px 8px;
+  border-radius: var(--pill);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.option-card-label {
+  margin-top: 8px;
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: clamp(20px, 1.9vw, 25px);
+  line-height: 1.05;
+}
+
+.option-card-blurb {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.option-card-count {
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+
+.step-finished {
+  display: grid;
+  gap: 10px;
+}
+
+.step-finished-copy {
+  color: var(--muted);
+  max-width: 46ch;
+}
+
+.step-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  padding-top: 8px;
+  margin-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.step-actions .btn-primary {
+  padding: 16px 28px;
+}
+
+/* ═══ 3. Board: the whole outfit ══════════════════════════════════════ */
+.board {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.board-head {
+  display: grid;
+  gap: 12px;
+  margin-bottom: clamp(22px, 3.4vw, 40px);
+}
+
+.board-name {
+  font-size: clamp(42px, 8vw, 112px);
+  line-height: 0.92;
+}
+
+.board-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 40px;
+  margin: 8px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.board-facts li {
+  display: grid;
+  gap: 4px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+/* Capitalise only the first letter of a phrase ("light denim · pale blue"). */
+.board-facts li > :last-child::first-letter,
+.runway-facts dd::first-letter {
+  text-transform: uppercase;
+}
+
+.board-facts .swatches {
+  margin-bottom: 2px;
+}
+
+/* "Max Mara × Alexander McQueen" in the board's fact list. */
+.board-houses {
+  font-family: var(--font-label);
+  font-style: italic;
+  font-size: 17px;
+}
+
+.board-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  margin-top: clamp(26px, 4vw, 48px);
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.board-actions-spacer {
+  flex: 1;
+}
+
+.btn-lg {
+  padding: 18px 34px;
+  font-size: 14px;
+}
+
+/* ═══ Phone ═══════════════════════════════════════════════════════════ */
+@media (max-width: 860px) {
+  .step {
+    grid-template-columns: 1fr;
+  }
+
+  .step-hero {
+    position: static;
+  }
+
+  .step-hero-frame {
+    aspect-ratio: 5 / 4;
+    max-height: 44dvh;
+    min-height: 240px;
+  }
+
+  .step-hero-caption {
+    min-height: 0;
+  }
+
+  .board-actions .btn-lg {
+    width: 100%;
+  }
+
+  .board-actions-spacer {
+    display: none;
+  }
+}

@@ -1,0 +1,198 @@
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  styles/gate.css — the Menswear / Womenswear split screen
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+.gate {
+  position: relative;
+  display: flex;
+  height: calc(100dvh - var(--topbar-h));
+  min-height: 560px;
+  /* A band across the top for the headline, so it never covers a face. */
+  padding-top: clamp(138px, 21vh, 210px);
+  background: var(--stage);
+  color: var(--paper);
+  overflow: hidden;
+}
+
+/* Each half is a flex child; its width is animated from JS (flex-grow). */
+.gate-half {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  text-align: left;
+  color: var(--paper);
+  background: var(--stage);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gate-half + .gate-half {
+  border-left: 1px solid var(--stage-line);
+}
+
+.gate-photo {
+  position: absolute;
+  inset: 0;
+  filter: grayscale(1) contrast(1.05) brightness(0.8);
+  transform: scale(1.04);
+  transition:
+    filter 0.7s var(--ease-out),
+    transform 1.2s var(--ease-out);
+}
+
+.gate-half.is-hover .gate-photo,
+.gate-half:focus-visible .gate-photo {
+  filter: grayscale(0) contrast(1) brightness(0.95);
+  transform: scale(1);
+}
+
+.gate-photo .photo {
+  animation: none;
+  background: var(--stage-2);
+}
+
+/* Darkens the bottom so text is always readable. */
+.gate-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(13, 12, 11, 0.88) 0%, rgba(13, 12, 11, 0.25) 46%, rgba(13, 12, 11, 0.38) 100%);
+}
+
+.gate-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  padding: clamp(20px, 3vw, 48px);
+  padding-bottom: clamp(44px, 6vw, 80px);
+  width: max-content;
+  max-width: 100%;
+}
+
+.gate-index {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.gate-label {
+  font-size: clamp(34px, 5.1vw, 92px);
+  line-height: 0.92;
+  white-space: nowrap;
+}
+
+.gate-tagline {
+  font-size: clamp(13px, 1.3vw, 16px);
+  color: rgba(246, 241, 234, 0.8);
+  max-width: 34ch;
+}
+
+.gate-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.gate-arrow {
+  display: inline-block;
+  transition: transform 0.4s var(--ease-out);
+}
+
+.gate-half.is-hover .gate-arrow {
+  transform: translateX(8px);
+}
+
+/* Headline sits across the seam, above both halves. */
+.gate-title {
+  position: absolute;
+  z-index: 5;
+  top: clamp(22px, 5vh, 56px);
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 0 var(--pad);
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.55);
+}
+
+.gate-title .eyebrow {
+  color: var(--gold);
+}
+
+.gate-title h1 {
+  font-size: clamp(30px, 5.2vw, 76px);
+  line-height: 0.95;
+}
+
+.gate-title em {
+  color: var(--paper);
+}
+
+.gate-sub {
+  font-size: clamp(12.5px, 1.2vw, 15px);
+  color: rgba(246, 241, 234, 0.82);
+}
+
+.gate-credits {
+  position: absolute;
+  z-index: 5;
+  right: 14px;
+  bottom: 10px;
+  display: flex;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+/* ── Phone: stack the halves ───────────────────────────── */
+@media (max-width: 760px) {
+  .gate {
+    flex-direction: column;
+    height: calc(100dvh - var(--topbar-h));
+  }
+
+  .gate-half + .gate-half {
+    border-left: 0;
+    border-top: 1px solid var(--stage-line);
+  }
+
+  .gate-photo {
+    filter: grayscale(0.4) brightness(0.8);
+  }
+
+  .gate {
+    padding-top: 108px;
+  }
+
+  .gate-title {
+    top: 14px;
+  }
+
+  .gate-sub {
+    display: none;
+  }
+
+  .gate-copy {
+    padding-bottom: 28px;
+  }
+
+  .gate-credits {
+    display: none;
+  }
+}

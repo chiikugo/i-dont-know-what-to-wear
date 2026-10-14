@@ -1,0 +1,291 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#  tools/looks/looks.src.txt — every runway look in the app, one per line
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+#  This is the SOURCE of the whole catalog. After editing it, run:
+#
+#      npm run looks
+#
+#  which fetches/crops any new photos into public/looks/ and rewrites
+#  src/data/looks.generated.ts (the file the app actually imports).
+#  Lines starting with "#" are comments.
+#
+#  WHERE THE PHOTOS COME FROM
+#  Real runway, street-style and museum photos on Wikimedia Commons, published
+#  under Creative Commons licences (CC BY, CC BY-SA, CC0). The app credits the
+#  photographer and licence under every photo. (firstVIEW / Vogue Runway / WWD /
+#  ARCHIVE.pdf photos are copyrighted, so the app links to those sites instead of
+#  showing their pictures — see src/data/shows.ts.)
+#
+#  ── THE FORMAT ─────────────────────────────────────────────────────────────────
+#
+#  id | Commons file | section | show | position | moods | formality | garments
+#
+#   id         unique name for the look, e.g. kors10-016. Pieces are named after
+#              it ("kors10-016/jackets-blazer"), and saved outfits remember those
+#              names — so avoid renaming ids once people have saved looks.
+#   Commons    the file's exact title on commons.wikimedia.org (without "File:").
+#   section    w = womenswear, m = menswear, u = both.
+#   show       a key from src/data/shows.ts (which designer / season / links).
+#   position   where the person stands in the ORIGINAL photo, in % of its size:
+#                  centre-x , top-of-head , bottom-of-feet
+#              e.g. "55,18,89" = body centred 55% across, head at 18% down,
+#              feet at 89% down. (Tip: open the photo, eyeball it on a 10% grid.)
+#              Museum pieces shot alone use "50,0,100" (the whole photo).
+#   moods      1–2 of: minimal classic relaxed street edgy romantic sporty
+#   formality  1 = loungewear … 3 = smart casual … 5 = black tie
+#   garments   the garments to cut out of the photo, separated by ";"
+#
+#  ── ONE GARMENT ────────────────────────────────────────────────────────────────
+#
+#    category[/type-or-length].fit.colour=Title[@crop]
+#
+#    e.g.  jackets/blazer.slim.grey=Grey flannel double-breasted blazer
+#          skirts/midi.baggy.forest=Green leather handkerchief skirt
+#          accessories/bag.regular.white=White box bag@42-62,38
+#
+#   category   shirts tshirts sweaters hoodies jackets pants skirts dresses
+#              shoes accessories
+#   type       jackets:     blazer coat leather bomber denim puffer cape fur vest utility
+#              pants:       tailored denim leather cargo leggings track shorts
+#              hoodies:     pullover zip
+#              dresses:     jumpsuit (otherwise give a length)
+#              shoes:       heels boots sneakers loafers dress sandals
+#              accessories: bag belt hat sunglasses scarf tights
+#   length     skirts & dresses: mini midi maxi
+#   fit        slim regular baggy
+#   colour     a colour name from src/data/types.ts (white, camel, navy, print…)
+#   @crop      OPTIONAL. Normally the crop comes from a preset per garment kind
+#              (see PRESETS in src/data/crops.ts). Override it when needed:
+#                @y0-y1           vertical span in % of the PERSON
+#                                 (0 = top of head, 100 = soles), e.g. @6-62
+#                @y0-y1,x         …and centre the crop at x% of the plate
+#                                 (for a bag held to one side), e.g. @40-60,35
+#                @y0-y1,x,w       …and make it w times wider
+#                @full            use the whole photo (museum pieces)
+#
+#  ── ADDING A LOOK ──────────────────────────────────────────────────────────────
+#   1. Find a photo on commons.wikimedia.org with a CC BY / CC BY-SA / CC0 licence,
+#      at least ~1500 px tall, with the whole person in frame.
+#   2. Add a line below (copy a similar one), and a show in src/data/shows.ts if
+#      it's a new collection.
+#   3. Run `npm run looks`, then `npm test` (checks every piece has a valid crop,
+#      an image and a licence).
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Michael Kors — Fall 2010 Ready-to-Wear (photos: Masaki-H, CC BY 2.0) ──────
+kors10-016|Michael Kors Fall-Winter 2010 016.jpg|w|kors-fw10|56,20,85|classic,minimal|3|sweaters.slim.grey=Grey cashmere cardigan;skirts/midi.regular.camel=Camel button-front skirt;shoes/boots.regular.brown=Cognac suede boots;accessories/belt.regular.brown=Wide brown leather belt
+kors10-036|Michael Kors Fall-Winter 2010 036.jpg|w|kors-fw10|55,18.5,85.5|minimal,classic|3|sweaters.slim.camel=Camel bouclé crewneck;pants/tailored.regular.camel=Camel pleated trousers;shoes/heels.regular.brown=Brown platform sandals
+kors10-082|Michael Kors Fall-Winter 2010 082.jpg|w|kors-fw10|55,23,82.5|minimal,classic|4|jackets/blazer.regular.white=Ivory double-breasted blazer;pants/tailored.baggy.white=Ivory wide-leg trousers
+kors10-161|Michael Kors Fall-Winter 2010 161.jpg|w|kors-fw10|53,15,87|edgy,sporty|2|jackets/puffer.baggy.silver=Silver puffer with fox-fur hood;sweaters.slim.black=Black fine-knit top;pants/tailored.slim.black=Black slim trousers;shoes/boots.regular.black=Black buckled boots
+kors10-009|Michael Kors Fall-Winter 2010 009.jpg|w|kors-fw10|53,23.5,84.5|relaxed,minimal|2|dresses/mini.baggy.camel=Oatmeal cowl-neck sweater dress;shoes/boots.regular.camel=Tan suede slouch boots;accessories/hat.regular.camel=Ribbed cashmere beanie;accessories/bag.regular.grey=Fox-fur clutch@40-62,35
+kors10-014|Michael Kors Fall-Winter 2010 014.jpg|w|kors-fw10|55,17,84.5|classic,edgy|3|jackets/coat.regular.camel=Camel suede coat with satin lining;sweaters.slim.black=Sheer black turtleneck;pants/tailored.baggy.charcoal=Charcoal flannel wide-leg trousers
+kors10-026|Michael Kors Fall-Winter 2010 026.jpg|w|kors-fw10|55,20.5,90|classic,minimal|3|jackets/coat.regular.camel=Camel gabardine car coat;dresses/mini.slim.camel=Camel belted wrap dress;shoes/boots.regular.camel=Tan suede slouch boots
+kors10-046|Michael Kors Fall-Winter 2010 046.jpg|w|kors-fw10|48,18,84|edgy,minimal|3|sweaters.regular.black=Black sheer-sleeve knit;skirts/midi.slim.charcoal=Charcoal flannel pencil skirt;shoes/heels.regular.black=Black platform sandals with knit cuffs;accessories/hat.regular.black=Black knit beanie
+kors10-051|Michael Kors Fall-Winter 2010 051.jpg|w|kors-fw10|50.5,19,89.5|relaxed,classic|3|shirts.baggy.camel=Camel suede blouson tunic;pants/tailored.regular.grey=Grey flannel pleated trousers;shoes/heels.regular.brown=Cognac strappy platform sandals
+kors10-059|Michael Kors Fall-Winter 2010 059.jpg|w|kors-fw10|55,18,89|classic,minimal|4|jackets/blazer.slim.grey=Grey flannel double-breasted blazer;pants/tailored.slim.grey=Grey flannel cigarette trousers;shoes/heels.slim.black=Black ankle-strap sandals;accessories/bag.regular.grey=Silver fox-fur clutch@36-56,36
+kors10-070|Michael Kors Fall-Winter 2010 070.jpg|w|kors-fw10|57,15,91.5|romantic,classic|4|sweaters.slim.camel=Camel cashmere bodysuit;skirts/midi.baggy.grey=Fox-fur skirt;shoes/heels.regular.camel=Studded suede platform sandals;accessories/belt.baggy.brown=Wide cognac corset belt
+kors10-078|Michael Kors Fall-Winter 2010 078.jpg|w|kors-fw10|58,16,85|classic,relaxed|3|jackets/blazer.regular.camel=Camel boyfriend blazer;shirts.regular.white=White open-collar shirt;pants/tailored.baggy.charcoal=Charcoal pleated peg trousers;shoes/heels.regular.black=Black platform sandals;accessories/sunglasses.regular.black=Aviator sunglasses
+kors10-092|Michael Kors Fall-Winter 2010 092.jpg|w|kors-fw10|55.5,24,89|classic,minimal|3|sweaters.slim.white=White ribbed turtleneck;skirts/midi.slim.camel=Tan suede pencil skirt;shoes/boots.regular.brown=Chocolate suede slouch boots;accessories/hat.regular.white=White cashmere beanie
+kors10-100|Michael Kors Fall-Winter 2010 100.jpg|w|kors-fw10|57.5,17.5,80.5|classic,minimal|3|jackets/coat.regular.camel=Camel double-face coat;dresses/mini.slim.brown=Chocolate turtleneck knit dress;shoes/boots.regular.brown=Chocolate suede slouch boots
+kors10-106|Michael Kors Fall-Winter 2010 106.jpg|w|kors-fw10|55,19.5,95|minimal,relaxed|3|shirts.regular.olive=Loden draped shirt;skirts/midi.slim.olive=Loden knit pencil skirt;shoes/heels.regular.brown=Lace-up platform sandals;accessories/hat.regular.olive=Loden knit beanie;accessories/bag.regular.brown=Cognac crossbody satchel@40-60,35
+kors10-117|Michael Kors Fall-Winter 2010 117.jpg|w|kors-fw10|56,16.5,91|minimal,relaxed|3|sweaters.regular.grey=Grey cashmere draped sweater;skirts/maxi.slim.grey=Grey cashmere column skirt;accessories/hat.regular.grey=Grey knit beanie;accessories/belt.regular.black=Black leather harness belt
+kors10-130|Michael Kors Fall-Winter 2010 130.jpg|w|kors-fw10|62,17,88|relaxed|2|dresses/mini.baggy.grey=Grey mohair cowl sweater dress;shoes/boots.baggy.cream=Shearling boots with knit cuffs;accessories/hat.regular.grey=Grey mohair beanie
+kors10-144|Michael Kors Fall-Winter 2010 144.jpg|w|kors-fw10|54,19,86|minimal,romantic|3|sweaters.slim.olive=Loden fine-knit bodysuit;skirts/midi.baggy.olive=Loden pleated slit skirt;shoes/boots.regular.brown=Chocolate suede slouch boots;accessories/hat.regular.brown=Brown knit beanie
+kors10-151|Michael Kors Fall-Winter 2010 151.jpg|w|kors-fw10|55,18,85|edgy,classic|3|jackets/leather.regular.brown=Burnished leather sleeveless coat@6-80;pants/tailored.slim.charcoal=Charcoal slim trousers;shoes/heels.regular.brown=Cognac gladiator sandals;accessories/bag.regular.brown=Burnished leather satchel@42-66,38;accessories/sunglasses.regular.black=Black aviators
+kors10-156|Michael Kors Fall-Winter 2010 156.jpg|w|kors-fw10|54,17.5,89.5|relaxed,sporty|2|sweaters.baggy.khaki=Gold-flecked cowl sweater;pants/leggings.slim.khaki=Ruched khaki leggings;shoes/heels.slim.camel=Tan strappy sandals;accessories/bag.regular.gold=Metallic gold satchel@42-62,34
+
+# ── Alexander McQueen — Fall 2018 Ready-to-Wear (photos: Christopher Macsurak, CC BY 2.0) ───
+mcq18-01|Alexander McQueen Fall Winter 2018 (50998006231).jpg|w|mcqueen-fw18|51,6,95|romantic,edgy|4|jackets/coat.baggy.white=White quilted coat with shearling;pants/tailored.regular.white=Ivory tailored trousers;shoes/boots.regular.white=White leather boots
+mcq18-09|Alexander McQueen Fall Winter 2018 (50999667373).jpg|w|mcqueen-fw18|50,5,96|classic,edgy|5|jackets/blazer.slim.black=Black tuxedo jacket;pants/tailored.regular.black=Black tailored trousers;shoes/heels.slim.black=Black-and-white pumps
+mcq18-18|Alexander McQueen Fall Winter 2018 (50999659548).jpg|w|mcqueen-fw18|50.5,5,97|edgy|3|jackets/leather.regular.black=Black leather biker jacket;dresses/midi.regular.ivory=Ivory tuxedo dress;shoes/boots.regular.black=Black leather ankle boots;accessories/bag.regular.white=White box bag@42-62,38
+mcq18-43|Alexander McQueen Fall Winter 2018 (51000613992).jpg|w|mcqueen-fw18|50,12,95|edgy,romantic|3|shirts.slim.black=Black leather shell top;skirts/midi.baggy.forest=Green leather handkerchief skirt;shoes/boots.regular.black=Black leather ankle boots
+mcq18-32|Alexander McQueen Fall Winter 2018 (51000375466).jpg|w|mcqueen-fw18|51,5,96|edgy,romantic|4|shirts.slim.red=Red leather bustier;skirts/midi.baggy.black=Black sheer plissé skirt;shoes/boots.regular.black=Black leather boots with red socks;accessories/belt.regular.red=Red leather harness belt@30-52
+mcq18-06|Alexander McQueen Fall Winter 2018 (51000370346).jpg|w|mcqueen-fw18|50,3.5,96.5|edgy,romantic|4|dresses/midi.slim.red=Red moth-print jacquard dress;shoes/boots.regular.black=Black leather boots with red socks;accessories/belt.baggy.black=Black leather corset belt;accessories/bag.regular.red=Moth-print fringed tote@56-80,67
+mcq18-11|Alexander McQueen Fall Winter 2018 (51000368751).jpg|w|mcqueen-fw18|48,2.5,98.5|romantic,edgy|4|dresses/midi.baggy.print=Graphic-print fringed scarf dress;shoes/heels.slim.black=Black sandals with gold ankle cuffs
+mcq18-13|Alexander McQueen Fall Winter 2018 (51000367266).jpg|w|mcqueen-fw18|50,6.5,98.5|classic,edgy|3|dresses/mini.baggy.red=Red-striped poplin shirt dress;shoes/boots.regular.black=Black leather boots with white socks;accessories/belt.baggy.burgundy=Oxblood leather corset belt;accessories/bag.regular.burgundy=Oxblood and black bucket bag@52-78,69
+mcq18-21|Alexander McQueen Fall Winter 2018 (50999798688).jpg|w|mcqueen-fw18|51,2.5,97.5|romantic|4|dresses/midi.baggy.pale-blue=Pale-blue butterfly-print ruffle dress;shoes/boots.regular.black=Black leather boots;accessories/bag.slim.pale-blue=Mint leather box bag@42-62,72
+mcq18-29|Alexander McQueen Fall Winter 2018 (51000376646).jpg|w|mcqueen-fw18|53,4,96.5|classic,edgy|5|jackets/blazer.slim.navy=Midnight peplum tuxedo jacket;pants/tailored.baggy.black=Black flared tuxedo trousers
+mcq18-34|Alexander McQueen Fall Winter 2018 (51000373511).jpg|w|mcqueen-fw18|50,2,97.5|classic,romantic|4|jackets/blazer.baggy.navy=Midnight double-breasted blazer;skirts/midi.baggy.red=Red chiffon handkerchief skirt;shoes/boots.regular.black=Black leather boots with red socks;accessories/bag.slim.red=Red jewelled clutch@40-60,66
+mcq18-35|Alexander McQueen Fall Winter 2018 (51000489447).jpg|w|mcqueen-fw18|48,4,97.5|edgy,romantic|4|shirts.slim.black=Black leather ruffle-sleeve corset top;skirts/midi.regular.red=Red moth-print silk skirt;shoes/boots.regular.black=Black leather ankle boots
+mcq18-37|Alexander McQueen Fall Winter 2018 (51000484342).jpg|w|mcqueen-fw18|51.5,6,93|classic,edgy|4|jackets/blazer.slim.burgundy=Oxblood sculpted blazer;skirts/mini.baggy.red=Red-striped ruffle mini skirt;shoes/boots.regular.black=Black leather boots with oxblood socks
+mcq18-48|Alexander McQueen Fall Winter 2018 (51000493661).jpg|w|mcqueen-fw18|50,3.5,96.5|edgy,street|3|jackets/leather.baggy.forest=Forest leather puffer-collar jacket@4-58;skirts/midi.baggy.ivory=Ivory draped handkerchief skirt;shoes/boots.regular.black=Black leather boots
+mcq18-50|Alexander McQueen Fall Winter 2018 (51000491716).jpg|w|mcqueen-fw18|50,5,94|edgy,minimal|4|dresses/midi.slim.teal=Emerald leather sheath dress;shoes/boots.regular.forest=Forest leather boots;accessories/bag.slim.black=Black jewelled box bag@40-58,68
+
+# ── 3.1 Phillip Lim — Fall 2010 Ready-to-Wear (photos: Masaki-H, CC BY 2.0) ───
+lim10-002|3.1 Phillip Lim Fall-Winter 2010 002.jpg|w|lim-fw10|49,24,93|classic,romantic|3|sweaters.regular.cream=Cream bouclé sweater with leather harness;skirts/mini.baggy.camel=Blanket-plaid circle skirt;shoes/boots.regular.black=Black platform ankle boots
+lim10-007|3.1 Phillip Lim Fall-Winter 2010 007.jpg|w|lim-fw10|46,17.5,91|classic,relaxed|3|jackets/cape.baggy.camel=Blanket-plaid cape with leather trim;pants/tailored.regular.black=Black velvet flared trousers
+lim10-015|3.1 Phillip Lim Fall-Winter 2010 015.jpg|w|lim-fw10|47,18.5,90|edgy,street|3|jackets/leather.regular.black=Leather biker jacket with suede sleeves;pants/tailored.baggy.camel=Blanket-plaid wide-leg trousers
+lim10-019|3.1 Phillip Lim Fall-Winter 2010 019.jpg|w|lim-fw10|46.5,15,89.5|street,edgy|3|jackets/leather.regular.mustard=Ochre shearling aviator jacket;dresses/mini.regular.grey=Grey mohair sweater dress;shoes/boots.regular.black=Black platform ankle boots
+lim10-023|3.1 Phillip Lim Fall-Winter 2010 023.jpg|w|lim-fw10|46.5,18.5,88|minimal,relaxed|3|jackets/blazer.baggy.grey=Grey flannel cape-sleeve jacket;pants/tailored.baggy.grey=Grey flannel slouch trousers;shoes/boots.regular.taupe=Taupe suede ankle boots;accessories/bag.regular.print=Leopard-print hobo bag@54-82,32
+lim10-043|3.1 Phillip Lim Fall-Winter 2010 043.jpg|w|lim-fw10|50,17,81|classic,street|3|jackets/coat.baggy.navy=Navy and camel shearling coat;shoes/boots.regular.black=Black platform ankle boots
+lim10-046|3.1 Phillip Lim Fall-Winter 2010 046.jpg|w|lim-fw10|48.5,18,82|street,relaxed|2|jackets/coat.regular.mustard=Mustard coat with shearling collar;shirts.slim.denim=Cropped denim vest;pants/shorts.regular.denim=Denim paperbag shorts;shoes/heels.baggy.mustard=Ochre platform sandals
+lim10-052|3.1 Phillip Lim Fall-Winter 2010 052.jpg|w|lim-fw10|45.5,21.5,88.5|edgy,romantic|3|jackets/leather.regular.black=Black leather jacket with white shearling;shirts.regular.white=White lace blouse;pants/tailored.baggy.mustard=Mustard satin flared trousers
+lim10-065|3.1 Phillip Lim Fall-Winter 2010 065.jpg|w|lim-fw10|46.5,16.5,80.5|classic,edgy|3|jackets/cape.regular.black=Black toggle-front capelet@6-58;pants/shorts.baggy.camel=Camel wool cuffed shorts;shoes/boots.slim.forest=Forest suede over-the-knee boots@52-103
+lim10-095|3.1 Phillip Lim Fall-Winter 2010 095.jpg|w|lim-fw10|46,19,91|classic,edgy|4|jackets/blazer.baggy.grey=Grey cape jacket over giraffe-print blazer;pants/tailored.regular.print=Giraffe-print flared trousers
+lim10-104|3.1 Phillip Lim Fall-Winter 2010 104.jpg|w|lim-fw10|44.5,16,92|relaxed,romantic|2|dresses/mini.baggy.periwinkle=Periwinkle mohair cardigan dress;shoes/boots.baggy.burgundy=Oxblood platform ankle boots;accessories/bag.regular.print=Leopard calf-hair tote@50-74,34
+lim10-109|3.1 Phillip Lim Fall-Winter 2010 109.jpg|w|lim-fw10|48.5,18,84.5|minimal,edgy|3|sweaters.baggy.periwinkle=Periwinkle blouson sweater;pants/tailored.regular.black=Black high-waist suspender trousers;shoes/heels.baggy.black=Black studded platform sandals;accessories/sunglasses.baggy.black=Oversized shield sunglasses
+lim10-114|3.1 Phillip Lim Fall-Winter 2010 114.jpg|w|lim-fw10|46.5,17,88|romantic,classic|3|jackets/blazer.regular.pale-blue=Powder-blue blazer with ivory lapels;tshirts.slim.gold=Gold sequin tank;pants/shorts.slim.pale-blue=Powder-blue crochet shorts;shoes/heels.regular.beige=Nude platform sandals
+lim10-121|3.1 Phillip Lim Fall-Winter 2010 121.jpg|w|lim-fw10|48,16.5,83|romantic,edgy|4|dresses/mini.slim.purple=Violet sequin-panel dress;shoes/heels.baggy.black=Black platform sandals
+lim10-143|3.1 Phillip Lim Fall-Winter 2010 143.jpg|w|lim-fw10|50,19.5,92|edgy,classic|4|jackets/blazer.regular.gold=Bronze lamé tuxedo jacket;shirts.regular.black=Black embellished-collar blouse;pants/tailored.baggy.gold=Bronze lamé wide-leg trousers
+lim10-181|3.1 Phillip Lim Fall-Winter 2010 181.jpg|w|lim-fw10|53.5,20,82.5|romantic|4|dresses/midi.baggy.pink=Hot-pink draped silk dress;shoes/heels.regular.brown=Brown platform sandals
+
+# ── Diesel Black Gold — Fall 2010 Ready-to-Wear (photos: Masaki-H, CC BY 2.0) ───
+dbg10-002|Diesel Black Gold Fall-Winter 2010 002.jpg|w|dbg-fw10|49,19.5,81|edgy,street|2|shirts.slim.black=Black leather peplum top;skirts/mini.slim.denim=Distressed denim pencil skirt;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-009|Diesel Black Gold Fall-Winter 2010 009.jpg|w|dbg-fw10|50,17.5,90.5|edgy,street|2|shirts.slim.denim=Sleeveless denim western shirt;pants/tailored.baggy.black=Black draped peg trousers;accessories/belt.baggy.black=Studded concho belt;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-014|Diesel Black Gold Fall-Winter 2010 014.jpg|w|dbg-fw10|50,18.5,89|edgy,minimal|3|dresses/mini.slim.white=White one-shoulder draped dress;accessories/belt.baggy.black=Wide studded corset belt;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-021|Diesel Black Gold Fall-Winter 2010 021.jpg|w|dbg-fw10|52.5,19.5,90|edgy,street|3|sweaters.baggy.white=White angora tunic with leather sleeves;pants/shorts.regular.black=Black leather shorts;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-024|Diesel Black Gold Fall-Winter 2010 024.jpg|w|dbg-fw10|50.5,19.5,84.5|edgy,minimal|2|tshirts.regular.white=White draped jersey tunic@9-66;pants/leather.slim.burgundy=Oxblood leather leggings;shoes/boots.regular.black=Black lace-up ankle boots
+dbg10-030|Diesel Black Gold Fall-Winter 2010 030.jpg|w|dbg-fw10|52,20.5,88.5|street,edgy|2|jackets/leather.slim.white=White cropped leather biker jacket;pants/denim.slim.light-denim=Bleached skinny jeans;shoes/boots.regular.charcoal=Grey suede slouch boots
+dbg10-033|Diesel Black Gold Fall-Winter 2010 033.jpg|w|dbg-fw10|48,20.5,86|street,edgy|2|shirts.regular.grey=Black-and-white gingham shirt;pants/shorts.regular.black=Black leather pleated shorts;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-039|Diesel Black Gold Fall-Winter 2010 039.jpg|w|dbg-fw10|48.5,19,92|relaxed,street|1|hoodies/pullover.regular.grey=Grey marl cropped sweatshirt;pants/denim.regular.denim=Vintage-wash straight jeans;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-045|Diesel Black Gold Fall-Winter 2010 045.jpg|w|dbg-fw10|57.5,21.5,93.5|street,edgy|2|jackets/leather.slim.red=Red studded leather biker jacket;tshirts.regular.grey=Grey marl scoop tee;pants/shorts.slim.denim=Dark denim cut-offs;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-049|Diesel Black Gold Fall-Winter 2010 049.jpg|w|dbg-fw10|56.5,20,88.5|edgy,street|2|shirts.regular.navy=Blue plaid flannel shirt;dresses/mini.slim.black=Black leather pinafore dress;shoes/boots.slim.black=Black lace-up wedge booties
+dbg10-055|Diesel Black Gold Fall-Winter 2010 055.jpg|w|dbg-fw10|52,19.5,97|relaxed,street|1|sweaters.regular.navy=Navy studded sweatshirt;pants/shorts.regular.light-denim=Bleached denim cut-offs;shoes/boots.regular.charcoal=Grey suede slouch boots
+dbg10-060|Diesel Black Gold Fall-Winter 2010 060.jpg|w|dbg-fw10|56,15.5,84.5|street,edgy|2|jackets/vest.slim.burgundy=Oxblood leather waistcoat over plaid shirt;pants/denim.slim.black=Black skinny jeans;shoes/boots.baggy.black=Black buckled platform boots
+dbg10-064|Diesel Black Gold Fall-Winter 2010 064.jpg|w|dbg-fw10|56,16,89.5|edgy,romantic|3|shirts.regular.black=Sheer black silk shirt;pants/leather.slim.burgundy=Distressed oxblood suede trousers;shoes/boots.baggy.black=Black buckled ankle boots
+dbg10-074|Diesel Black Gold Fall-Winter 2010 074.jpg|w|dbg-fw10|50,19.5,88.5|edgy,street|3|jackets/leather.slim.black=Quilted leather jacket with red sleeves;skirts/mini.slim.black=Black leather mini skirt;shoes/boots.slim.black=Black leather ankle boots
+dbg10-078|Diesel Black Gold Fall-Winter 2010 078.jpg|w|dbg-fw10|50.5,20.5,88.5|edgy,street|2|dresses/mini.slim.charcoal=Bleach-print jersey mini dress;shoes/boots.regular.charcoal=Grey suede slouch boots
+dbg10-084|Diesel Black Gold Fall-Winter 2010 084.jpg|w|dbg-fw10|48,18.5,85|edgy,street|3|jackets/blazer.baggy.black=Black wool boyfriend jacket@8-64;pants/leggings.slim.charcoal=Bleach-print leggings;shoes/boots.regular.charcoal=Grey suede slouch boots;accessories/hat.regular.black=Black felt fedora
+
+# ── Richard Chai — Fall 2010 Ready-to-Wear (photos: Masaki-H, CC BY 2.0) ──────
+chai10-009|Richard Chai Fall-Winter 2010 009.jpg|w|chai-fw10|50.5,13.5,95.5|romantic,minimal|3|shirts.slim.cream=Cream floral-print shirt;dresses/maxi.regular.taupe=Taupe knit bustier maxi dress;shoes/boots.regular.beige=Sand suede lace-up boots
+chai10-014|Richard Chai Fall-Winter 2010 014.jpg|w|chai-fw10|51.5,14,85|minimal,relaxed|3|jackets/coat.baggy.navy=Navy cocoon coat;pants/tailored.slim.charcoal=Charcoal slim trousers;shoes/boots.regular.beige=Sand suede lace-up boots
+chai10-018|Richard Chai Fall-Winter 2010 018.jpg|w|chai-fw10|50,22,85|relaxed,minimal|2|hoodies/pullover.baggy.grey=Grey marl draped sweatshirt;pants/tailored.baggy.charcoal=Slate satin slouch trousers;shoes/boots.regular.tan=Tan leather ankle boots
+chai10-029|Richard Chai Fall-Winter 2010 029.jpg|w|chai-fw10|56,23,87|relaxed,edgy|2|shirts.regular.charcoal=Black lace camisole over grey tee;pants/cargo.baggy.charcoal=Slate satin cargo trousers;shoes/boots.regular.beige=Sand suede lace-up boots
+chai10-034|Richard Chai Fall-Winter 2010 034.jpg|w|chai-fw10|54.5,22.5,89.5|relaxed,romantic|2|shirts.regular.print=Midnight floral blouse with knit sleeves;pants/tailored.baggy.navy=Indigo wide-leg slouch trousers
+chai10-040|Richard Chai Fall-Winter 2010 040.jpg|w|chai-fw10|52,18,93|romantic,relaxed|3|jackets/fur.baggy.grey=Grey fox-fur gilet@6-62;skirts/midi.baggy.olive=Olive satin draped skirt;shoes/boots.regular.beige=Sand leather lace-up boots
+chai10-061|Richard Chai Fall-Winter 2010 061.jpg|w|chai-fw10|57.5,13,84|relaxed,street|2|jackets/utility.regular.olive=Olive wool field jacket;shirts.baggy.cream=Ivory lace tunic shirt@14-62;skirts/maxi.slim.charcoal=Charcoal knit maxi skirt;shoes/boots.regular.beige=Sand suede lace-up boots
+chai10-082|Richard Chai Fall-Winter 2010 082.jpg|w|chai-fw10|55,11.5,88.5|romantic,edgy|3|dresses/midi.baggy.brown=Bronze sequin slip dress;shoes/boots.regular.beige=Sand suede lace-up boots
+
+# ── Y-3 — Fall 2010 (photos: Masaki-H, CC BY 2.0) ─────────────────────────────
+y310-012|Y-3 Fall-Winter 2010 012.jpg|w|y3-fw10|57.5,6,88|edgy,street|3|jackets/coat.regular.charcoal=Charcoal cropped jacket over long gilet@6-70;dresses/midi.baggy.grey=Grey plaid handkerchief dress@8-74;shoes/sneakers.baggy.purple=Patent high-top trainers with leg warmers@66-103
+y310-030|Y-3 Fall-Winter 2010 030.jpg|w|y3-fw10|44.5,24,85|sporty,street|2|dresses/jumpsuit.regular.navy=Navy and black zip boiler suit;shoes/sneakers.baggy.purple=Purple high-top trainers
+y310-061|Y-3 Fall-Winter 2010 061.jpg|w|y3-fw10|51,15.5,82|street,relaxed|2|jackets/coat.baggy.burgundy=Burgundy cocoon zip coat;pants/leggings.slim.grey=Grey marl leggings@56-101;shoes/sneakers.regular.black=Black trainers;accessories/scarf.baggy.navy=Navy wrap scarf@6-34
+y310-070|Y-3 Fall-Winter 2010 070.jpg|w|y3-fw10|47.5,17.5,85|street,edgy|2|sweaters.regular.white=Black-and-white striped wrap top;skirts/mini.regular.white=Striped jersey mini skirt;shoes/boots.regular.black=Black knit-cuff boots@62-103
+y310-085|Y-3 Fall-Winter 2010 085.jpg|w|y3-fw10|50.5,13.5,81.5|street,relaxed|2|dresses/mini.baggy.white=Striped jersey poncho dress;shoes/sneakers.regular.pink=Hot-pink trainers
+y310-092|Y-3 Fall-Winter 2010 092.jpg|w|y3-fw10|48.5,17.5,83|sporty,street|2|sweaters.regular.rust=Rust colour-block sweater;pants/cargo.regular.cobalt=Cobalt cuffed cargo trousers;shoes/sneakers.regular.black=Black three-stripe trainers;accessories/scarf.baggy.navy=Chunky navy scarf@6-34
+y310-130|Y-3 Fall-Winter 2010 130.jpg|w|y3-fw10|47.5,17.5,88|street,edgy|2|dresses/mini.baggy.black=Black slogan sweater dress;shoes/boots.regular.black=Black knee-high sock boots@60-103
+y310-137|Y-3 Fall-Winter 2010 137.jpg|w|y3-fw10|46.5,19.5,93|edgy,street|3|jackets/utility.regular.black=Black draped cowl jacket;skirts/mini.regular.black=Black pleated mini skirt;shoes/sneakers.baggy.black=Black high-top trainers;accessories/bag.baggy.black=Black nylon hobo bag@58-86,30
+y310-144|Y-3 Fall-Winter 2010 144.jpg|w|y3-fw10|50,14.5,87.5|edgy,romantic|3|jackets/coat.regular.black=Black ruffle-front knit coat@6-68;shoes/sneakers.regular.black=Black sport sandals with knee socks@62-103;accessories/bag.regular.navy=Navy nylon bowling bag@56-82,36
+y310-153|Y-3 Fall-Winter 2010 153.jpg|w|y3-fw10|47.5,16,88.5|street,sporty|2|jackets/coat.baggy.black=Black hooded cocoon coat;pants/leggings.slim.grey=Grey marl jersey leggings;shoes/sneakers.regular.purple=Purple suede trainers;accessories/bag.baggy.purple=Purple nylon gym bag@56-84,32
+y310-158|Y-3 Fall-Winter 2010 158.jpg|w|y3-fw10|49.5,20.5,82|relaxed,sporty|2|jackets/coat.baggy.cobalt=Cobalt draped cardigan coat;sweaters.slim.black=Black ribbed turtleneck@9-50;pants/track.regular.grey=Pale grey marl track pants;shoes/sneakers.regular.grey=Grey suede trainers
+y310-163|Y-3 Fall-Winter 2010 163.jpg|w|y3-fw10|45,17,82|street,minimal|3|jackets/cape.baggy.grey=Grey jersey button-front cape;shoes/sneakers.regular.pink=Hot-pink high-top trainers;accessories/tights.slim.teal=Teal opaque tights
+y310-175|Y-3 Fall-Winter 2010 175.jpg|w|y3-fw10|47.5,17,86.5|street,edgy|2|jackets/cape.baggy.navy=Midnight hooded cape;hoodies/pullover.regular.black=Black graphic-print hoodie@12-52;shoes/sneakers.regular.black=Black canvas high-tops;accessories/tights.slim.olive=Olive opaque tights
+y310-205|Y-3 Fall-Winter 2010 205.jpg|w|y3-fw10|46,17,81.5|sporty,street|2|dresses/mini.regular.red=Red and grey colour-block sweatshirt dress;shoes/boots.regular.black=Black wedge trainer boots;accessories/scarf.baggy.taupe=Taupe funnel scarf@6-30
+y310-210|Y-3 Fall-Winter 2010 210.jpg|w|y3-fw10|48,17,89.5|sporty,street|1|hoodies/pullover.baggy.orange=Orange fleece hoodie with wrap scarf;pants/shorts.baggy.grey=Pale grey satin shorts;shoes/sneakers.regular.black=Black and white trainers
+y310-221|Y-3 Fall-Winter 2010 221.jpg|w|y3-fw10|46.5,16,85|edgy,street|3|jackets/utility.regular.black=Black and navy panelled jacket@8-58;skirts/mini.slim.black=Black jersey mini skirt;shoes/sneakers.baggy.black=Black high-top trainers;accessories/scarf.regular.yellow=Yellow tiger-stripe scarf@4-28
+
+# ── Diane von Furstenberg — Spring 2014 Ready-to-Wear (photos: Christopher Macsurak, CC BY 2.0) ───
+dvf14-a|Anais Mali-Diane von Furstenberg SS 14-Christopher Macsurak.jpg|w|dvf-ss14|48,2.5,97|classic,romantic|4|dresses/mini.regular.navy=Navy lace-panel trench dress;shoes/heels.baggy.white=Black-and-white woven platform sandals
+dvf14-03|Diane von Fürstenberg Spring-Summer 2014 03.jpg|w|dvf-ss14|48,1.5,97|romantic,classic|4|dresses/jumpsuit.regular.red=Red lace-up palazzo jumpsuit
+dvf14-01|Diane von Fürstenberg Spring-Summer 2014 01.jpg|w|dvf-ss14|51,2,97|romantic,classic|3|dresses/mini.baggy.print=Dot-print fit-and-flare sundress;shoes/heels.baggy.red=Red woven platform sandals
+dvf14-18|Diane von Fürstenberg Spring-Summer 2014 18.jpg|w|dvf-ss14|57.5,3.5,97|romantic,classic|3|dresses/mini.regular.cobalt=Blue paisley-print wrap dress;shoes/heels.baggy.tan=Tan leather platform sandals
+dvf14-20|Diane von Fürstenberg Spring-Summer 2014 20.jpg|w|dvf-ss14|48.5,2.5,97.5|minimal,romantic|4|dresses/maxi.regular.turquoise=Turquoise halter column gown
+dvf14-19|Diane von Fürstenberg Spring-Summer 2014 19.jpg|w|dvf-ss14|45,2.5,97.5|romantic,relaxed|3|shirts.regular.print=Butterfly-print silk shirt;pants/tailored.baggy.print=Butterfly-print palazzo trousers;accessories/bag.slim.red=Red chain-strap mini bag@52-72,24
+dvf14-22|Diane von Fürstenberg Spring-Summer 2014 22.jpg|w|dvf-ss14|60.5,2.5,97.5|minimal,classic|4|shirts.regular.white=White halter-neck peplum top;pants/tailored.baggy.white=White wide-leg trousers
+dvf14-02|Diane von Fürstenberg Spring-Summer 2014 02.jpg|w|dvf-ss14|44.5,3,97.5|minimal,classic|3|shirts.baggy.white=White safari tunic shirt@9-60;pants/tailored.regular.white=White straight-leg trousers;accessories/bag.regular.white=White leather bucket bag@56-84,28.5
+dvf14-04|Diane von Fürstenberg Spring-Summer 2014 04.jpg|w|dvf-ss14|49.5,2.5,97|classic,romantic|3|shirts.regular.print=Zebra-print silk tunic@9-58;pants/tailored.baggy.print=Zebra-print flared trousers;accessories/bag.slim.print=Embroidered box clutch@54-72,34
+dvf14-06|Diane von Fürstenberg Spring-Summer 2014 06.jpg|w|dvf-ss14|50,2.5,97|minimal,romantic|3|dresses/mini.slim.white=White slip dress with red straps;shoes/heels.regular.white=Black-and-white woven sandals
+dvf14-07|Diane von Fürstenberg Spring-Summer 2014 07.jpg|w|dvf-ss14|51,3,97|edgy,romantic|4|dresses/mini.regular.black=Black and gold beaded shift dress;shoes/heels.baggy.black=Black strappy platform sandals
+dvf14-12|Diane von Fürstenberg Spring-Summer 2014 12.jpg|w|dvf-ss14|50,2.5,97.5|romantic,classic|4|dresses/mini.regular.gold=Gold lamé tunic dress;accessories/sunglasses.regular.white=White-rimmed aviators;accessories/bag.regular.cream=Ivory leather bucket bag@58-86,28.5
+dvf14-14|Diane von Fürstenberg Spring-Summer 2014 14.jpg|w|dvf-ss14|44,4.5,97.5|relaxed,romantic|3|shirts.regular.beige=Champagne silk blouse;pants/shorts.regular.gold=Gold brocade shorts;shoes/heels.baggy.tan=Cork platform sandals;accessories/bag.slim.cream=Ivory saddle crossbody bag@33-53,41
+dvf14-15|Diane von Fürstenberg Spring-Summer 2014 15.jpg|w|dvf-ss14|52.5,2.5,97.5|romantic,relaxed|3|shirts.baggy.cobalt=Cobalt halter-neck blouse;skirts/maxi.slim.print=Sunset-print column maxi skirt
+dvf14-25|Diane von Fürstenberg Spring-Summer 2014 25.jpg|w|dvf-ss14|58.5,3.5,97|romantic,relaxed|2|tshirts.slim.tan=Cork-print bralette top;skirts/mini.baggy.tan=Cork-print full skirt;shoes/heels.regular.navy=Navy lace-up gladiator sandals
+
+# ── Jill Stuart — Fall 2010 Ready-to-Wear (photos: Masaki-H, CC BY 2.0) ───────
+jill10-004|Jill Stuart Fall-Winter 2010 004.jpg|w|jill-fw10|46.5,20,89|edgy,romantic|3|dresses/mini.slim.black=Black one-shoulder sequin mini dress;shoes/boots.slim.black=Black lace-up over-the-knee boots@56-103
+jill10-047|Jill Stuart Fall-Winter 2010 047.jpg|w|jill-fw10|47.5,23.5,85|edgy,minimal|3|jackets/coat.regular.black=Black longline knit coat with hooded scarf;pants/tailored.slim.ivory=Ivory cropped slim trousers;shoes/boots.regular.black=Black lace-up ankle boots
+jill10-093|Jill Stuart Fall-Winter 2010 093.jpg|w|jill-fw10|46,19,86|classic,edgy|3|jackets/coat.regular.red=Red belted swing coat@6-62;shoes/boots.slim.black=Black suede over-the-knee boots@56-103;accessories/belt.baggy.black=Wide black studded belt@26-50;accessories/hat.regular.black=Black slouch beanie
+jill10-132|Jill Stuart Fall-Winter 2010 132.jpg|w|jill-fw10|43,18.5,88.5|edgy,street|2|dresses/mini.slim.black=Black lip-print mini dress;shoes/boots.slim.black=Black over-the-knee boots with striped socks@56-103
+jill10-145|Jill Stuart Fall-Winter 2010 145.jpg|w|jill-fw10|48.5,15,77|street,edgy|2|tshirts.regular.white=Graphic-print tee;skirts/mini.slim.cream=Ivory colour-block wrap mini skirt;shoes/boots.slim.black=Black lace-up over-the-knee boots@56-103;accessories/scarf.baggy.black=Black fringed blanket scarf@8-56;accessories/hat.regular.charcoal=Charcoal slouch beanie
+jill10-203|Jill Stuart Fall-Winter 2010 203.jpg|w|jill-fw10|48.5,18,86|romantic,edgy|4|dresses/mini.slim.purple=Violet ruched satin mini dress;shoes/boots.slim.black=Black leather over-the-knee boots@56-103
+jill10-214|Jill Stuart Fall-Winter 2010 214.jpg|w|jill-fw10|47.5,18.5,88.5|romantic,edgy|4|dresses/mini.slim.teal=Teal ruched puff-shoulder mini dress;shoes/boots.slim.black=Black lace-up over-the-knee boots@56-103
+
+# ── Max Mara — Fall 2019 Ready-to-Wear (photos: Christopher Macsurak, CC BY-SA 4.0) ───
+mm19-2764|MaxMara-2764.jpg|w|maxmara-fw19|49,3,95.5|minimal,classic|4|jackets/coat.baggy.mustard=Ochre wool wrap coat;pants/tailored.baggy.mustard=Ochre wide-leg trousers;accessories/bag.baggy.orange=Croc-embossed double belt bag@36-56,51
+mm19-2708|MaxMara-2708.jpg|w|maxmara-fw19|39.5,4.5,96.5|classic,minimal|3|jackets/bomber.baggy.camel=Camel wool cape-sleeve bomber@6-62;skirts/mini.regular.blush=Blush satin mini skirt;shoes/boots.slim.brown=Cognac croc-embossed knee boots@58-103
+mm19-2641|MaxMara-2641.jpg|w|maxmara-fw19|35.5,4.5,98|classic,relaxed|3|jackets/coat.baggy.camel=Camel alpaca teddy coat;sweaters.baggy.camel=Camel teddy-knit sweater@10-52;shoes/boots.slim.brown=Cognac croc-embossed knee boots@58-103
+mm19-2635|MaxMara-2635.jpg|w|maxmara-fw19|55,7.5,97.5|minimal,classic|4|jackets/coat.baggy.camel=Camel cashmere maxi coat;pants/tailored.baggy.camel=Camel wide-leg trousers;accessories/bag.baggy.tan=Tan croc double belt bag@36-56,50
+mm19-2542|MaxMara-2542.jpg|w|maxmara-fw19|50,2.5,97.5|minimal,relaxed|3|jackets/coat.baggy.ivory=Ivory teddy-bear coat;shoes/boots.slim.white=White croc-embossed knee boots@62-103
+mm19-bocconi|Max Mara FW19 at Bocconi University Milan.jpg|w|maxmara-fw19|49,4.5,97|edgy,minimal|3|sweaters.baggy.black=Black utility-pocket turtleneck;skirts/mini.regular.black=Black satin panel skirt;shoes/boots.slim.black=Black patent croc thigh-high boots@54-103
+mm19-leather|Max Mara.jpg|w|maxmara-fw19|36.5,11.5,96.5|edgy,classic|3|jackets/leather.baggy.black=Black croc-embossed leather coat@6-66;shoes/boots.slim.black=Black patent croc knee boots@58-103
+
+# ── Basil Soda — Spring 2012 Couture ──────────────────────────────────────────
+soda12-55|Basil Soda Spring Summer Haute Couture 2012 (55).jpg|w|basilsoda-hc-ss12|52.5,10.5,90|romantic|5|dresses/maxi.slim.orange=Saffron embroidered couture gown
+soda12-54|Basil Soda Spring Summer Haute Couture 2012 (54).jpg|w|basilsoda-hc-ss12|43,0.5,98.5|romantic,edgy|5|dresses/maxi.slim.navy=Midnight mesh-panel couture gown
+
+# ── Iris van Herpen — Spring 2012 Couture ─────────────────────────────────────
+ivh12-11|Iris van Herpen - Haute Couture Spring Summer 2012 (11).jpg|w|ivh-hc-ss12|51,2.5,97.5|edgy|5|dresses/mini.slim.brown=Bronze sculpted lattice mini dress;shoes/boots.baggy.sage=Mint sculpted platform booties
+ivh12-25|Iris van Herpen - Haute Couture Spring Summer 2012 (25).jpg|w|ivh-hc-ss12|46,17,87|edgy,minimal|4|jackets/blazer.slim.white=Ivory sculpted-shoulder jacket;pants/leather.slim.black=Black glossy pinstripe trousers;shoes/boots.baggy.black=Black sculpted claw-heel boots
+
+# ── Gustavo Lins — Spring 2012 Couture ────────────────────────────────────────
+lins12-n4|Gustavo Lins - Paris Haute Couture Spring-Summer 2012 n4.jpg|w|lins-hc-ss12|47,2.5,91|romantic,classic|4|dresses/midi.baggy.green=Emerald one-shoulder draped dress;shoes/heels.slim.black=Black patent pumps
+
+# ── Street style — Louis Vuitton show, Autumn/Winter 2014 ─────────────────────
+st-lv14-model|A model - Louis Vuitton autumn-winter 2014 fashion show.jpg|w|street-lv-aw14|45.5,11,97.5|minimal,sporty|2|jackets/coat.regular.white=White technical long coat;tshirts.regular.white=White lace-front tee;pants/shorts.regular.white=White lace-up shorts;shoes/sneakers.regular.grey=Python-print trainers;accessories/bag.regular.brown=Dark python tote@60-80,35.5;accessories/sunglasses.regular.brown=Tortoiseshell aviators
+
+# ── Oliver Spencer — Spring 2014 Menswear (photos: Walterlan Papetti, CC BY-SA 4.0) ───
+os14-02|Oliver spencer 2.jpg|m|oliverspencer-ss14|56.5,35.5,96|classic,relaxed|3|jackets/blazer.regular.beige=Stone linen blazer;pants/tailored.regular.beige=Stone linen trousers;shoes/dress.regular.brown=Brown suede derbies
+os14-01|Oliver Spencer.jpg|m|oliverspencer-ss14|54,11,92|classic,romantic|3|jackets/blazer.regular.red=Coral striped linen blazer;shirts.slim.red=Coral pinstripe shirt@10-46;pants/tailored.regular.taupe=Paint-splattered dusty-rose trousers;shoes/loafers.regular.black=Black penny loafers;accessories/sunglasses.regular.black=Black wayfarers
+os14-03|Oliver spencer 3.jpg|m|oliverspencer-ss14|50.5,8.5,96|classic,street|3|jackets/blazer.regular.pale-blue=Paint-splattered chambray blazer;pants/tailored.baggy.navy=Navy wide-leg trousers;shoes/boots.regular.brown=Brown leather ankle boots
+os14-06|Oliver spencer 06.jpg|m|oliverspencer-ss14|49,12,90|street,relaxed|2|jackets/blazer.regular.olive=Olive cotton blazer;shirts.regular.print=Madras check shirt@10-46;pants/denim.regular.denim=Bleach-splattered indigo jeans;shoes/dress.regular.brown=Brown suede derbies;accessories/sunglasses.regular.black=Round sunglasses
+os14-s|Oliver S..jpg|m|oliverspencer-ss14|48.5,13.5,85.5|classic,minimal|4|jackets/blazer.slim.brown=Chocolate tailored jacket;tshirts.slim.khaki=Khaki henley@10-44;pants/tailored.slim.brown=Chocolate slim trousers;shoes/loafers.slim.black=Black leather loafers
+os14-09|Oliver Spencer 09.jpg|m|oliverspencer-ss14|46.5,18.5,88.5|classic,relaxed|3|jackets/blazer.regular.tan=Tan double-breasted jacket;tshirts.regular.cream=Striped cotton tee@12-48;pants/tailored.regular.brown=Brown flared trousers;accessories/hat.regular.black=Black wide-brim fedora
+os14-11|Oliver Spencer 11.jpg|m|oliverspencer-ss14|47.5,32,84.5|street,sporty|2|jackets/bomber.regular.red=Red cotton bomber;pants/tailored.slim.black=Black tapered trousers;shoes/loafers.regular.rust=Rust suede loafers
+os14-12|Oliver Spencer 12.jpg|m|oliverspencer-ss14|49,20,91.5|classic,minimal|4|jackets/blazer.regular.charcoal=Charcoal cotton suit jacket;tshirts.slim.mustard=Mustard henley@10-44;pants/tailored.regular.charcoal=Charcoal suit trousers;shoes/loafers.regular.black=Black penny loafers
+os14-14|OLIVER SPENCER SHOW 14.jpg|m|oliverspencer-ss14|48.5,13,90|relaxed,classic|3|jackets/utility.regular.olive=Olive cotton field jacket;pants/tailored.regular.olive=Olive cotton trousers;shoes/dress.regular.black=Black leather brogues;accessories/hat.regular.brown=Brown felt fedora
+os14-13|Oliver Spencer 13.jpg|m|oliverspencer-ss14|44.5,20,89|relaxed,romantic|2|jackets/leather.regular.tan=Tan suede blouson;sweaters.regular.mustard=Mustard cotton knit@10-50;pants/shorts.regular.print=Madras check shorts;shoes/loafers.regular.rust=Rust suede loafers
+os14-05|OLIVER SPENCER 05.jpg|m|oliverspencer-ss14|47.5,13,90.5|classic|4|jackets/blazer.slim.navy=Navy double-breasted jacket;pants/tailored.slim.navy=Navy tailored trousers;shoes/dress.regular.rust=Tan suede brogues
+
+# ── Astrid Andersen — Spring 2014 Menswear (photos: Walterlan Papetti, CC BY-SA 4.0) ───
+aa14-01|Astrid Andersen 01.jpg|m|astridandersen-ss14|51.5,6,95.5|sporty,street|2|jackets/bomber.baggy.white=White lace-panel bomber;pants/track.baggy.white=White nylon track pants;shoes/sandals.regular.black=Black sport sandals
+aa14-04|Astrid andersen 04.jpg|m|astridandersen-ss14|46,3.5,94.5|sporty,edgy|1|tshirts.baggy.ivory=Ivory embossed-crest tank;pants/leggings.slim.print=Jade camouflage-print leggings;shoes/sandals.regular.black=Black sport sandals
+aa14-08|Astrid andersen 08.jpg|m|astridandersen-ss14|40,2.5,97|sporty,edgy|1|tshirts.slim.olive=Sheer mesh tee with lace sleeves;pants/track.baggy.sage=Sage colour-block track pants;shoes/sandals.regular.black=Black sport sandals
+aa14-12|Astrid andersen 12.jpg|m|astridandersen-ss14|48,8.5,95|sporty,street|1|tshirts.slim.white=White cropped shrug tee@6-38;pants/track.baggy.sage=White-and-sage track pants
+aa14-06|Astrid andersen06.jpg|m|astridandersen-ss14|47.5,2.5,97|sporty,street|1|hoodies/pullover.regular.mint=Mint velvet sweatshirt;pants/track.baggy.mint=Mint velvet track pants;shoes/sandals.regular.black=Black sport sandals
+aa14-07|Astrid andersen07.jpg|m|astridandersen-ss14|42.5,2,94.5|sporty,minimal|1|tshirts.slim.white=White sheer-panel long-sleeve tee;pants/shorts.regular.white=White nylon running shorts;shoes/sandals.regular.black=Black sport sandals
+aa14-10|Astrid andersen10.jpg|m|astridandersen-ss14|43.5,2.5,94.5|sporty,street|1|hoodies/pullover.baggy.khaki=Sand crest-print hoodie;shoes/sandals.regular.black=Black sport sandals
+aa14-11|Astrid andersen11.jpg|m|astridandersen-ss14|44.5,2.5,97.5|sporty,minimal|1|hoodies/pullover.baggy.white=White nylon pullover anorak;pants/shorts.regular.white=White organza shorts;shoes/sandals.regular.black=Black sport sandals
+
+# ── Archive — rafsimons (museum pieces, mostly CC0 from the RISD Museum) ──────
+arch-raf-spiderweb|Raf Simons Spiderweb sweater, AW 1998-99.jpg|m|archive-rafsimons|49,0,100|edgy,street|2|sweaters.regular.black=Spiderweb knit sweater@full
+arch-raf-cape|Raf Simons black cotton cape for a man, Autumn-Winter 1999-2000 01.jpg|m|archive-rafsimons|50,0,100|edgy,minimal|3|jackets/cape.baggy.black=Black cotton cape@full
+arch-raf-bodysnatcher|Raf Simons Bodysnatcher pants, Autumn Winter 2004-2005 02.jpg|m|archive-rafsimons|47,0,100|edgy,street|2|pants/denim.slim.black=Bodysnatcher trousers@full
+
+# ── Archive — cdg (museum pieces, mostly CC0 from the RISD Museum) ────────────
+arch-cdg-tailcoat|Comme des Garcons men for H&M 09.jpg|m|archive-cdg|50,0,100|edgy,classic|4|jackets/blazer.regular.black=Wool tailcoat jacket@full
+arch-cdg-camo|2019 Spring-Summer suit, Comme des Garçons, camouflage design polyester 03.jpg|m|archive-cdg|50,0,100|edgy,street|3|pants/tailored.baggy.olive=Camouflage-appliqué trousers@full
+arch-cdg-wedding|2005 Rei Kawakubo for Comme des Garçons printed wedding dress, Autumn-Winter collection 01.jpg|w|archive-cdg|50,0,100|romantic,minimal|5|dresses/midi.regular.white=Lace-print wedding dress@full
+arch-cdg-ruffle|1997 Comme des Garçons white dress 1.jpg|w|archive-cdg|52,0,100|romantic,edgy|4|dresses/midi.baggy.ivory=Ruffled cotton dress@full
+
+# ── Archive — wvb (museum pieces, mostly CC0 from the RISD Museum) ────────────
+arch-wvb-bomber|2017 Walter van Beirendonck man's jacket 01.jpg|m|archive-wvb|51,0,100|street,edgy|2|jackets/bomber.baggy.olive=Sculptural khaki bomber@full
+
+# ── Archive — paulsmith (museum pieces, mostly CC0 from the RISD Museum) ──────
+arch-ps-stripe|Paul Smith striped shirt.jpg|m|archive-paulsmith|50,0,100|classic,relaxed|3|shirts.regular.print=Signature multi-stripe shirt@full
+arch-ps-suit|2007 Paul Smith suit, merino wool with pink windowpane check.jpg|m|archive-paulsmith|51,5,95|classic,romantic|4|jackets/blazer.slim.charcoal=Windowpane-check suit jacket@0-58;pants/tailored.slim.charcoal=Windowpane-check suit trousers@46-102
+
+# ── Archive — yohji (museum pieces, mostly CC0 from the RISD Museum) ──────────
+arch-yohji-suit|Yohji Yamamoto wool suit c 1990.jpg|m|archive-yohji|50,0,100|minimal,edgy|4|jackets/blazer.baggy.navy=Pinstripe wool suit jacket@full
+arch-yohji-miro|Yohji yamamoto, giacca maschile omaggio a mirò, a-i 1991-92 (massa lombarda RA, archivi mazzini) 02.jpg|m|archive-yohji|50,0,100|edgy,romantic|3|jackets/blazer.baggy.red=Miró-tribute wool jacket@full
+
+# ── Archive — junya (museum pieces, mostly CC0 from the RISD Museum) ──────────
+arch-junya-denim|2002 Junya Watanabe for Comme des Garçons jacket, blue denim jeans patchwork 01.jpg|w|archive-junya|50,0,100|edgy,romantic|3|jackets/denim.regular.denim=Ruffled denim jacket@full
+
+# ── Archive — margiela (museum pieces, mostly CC0 from the RISD Museum) ───────
+arch-mmm-coat|1997 Maison Martin Margiela white dress and red coat, Winter 1997-98 collection 1.jpg|w|archive-margiela|39,0,100|minimal,edgy|4|jackets/coat.regular.red=Red wool coat over half-dress@full
+
+# ── Archive — gaultier (museum pieces, mostly CC0 from the RISD Museum) ───────
+arch-jpg-pantsuit|1996 Jean-Paul Gaultier pantsuit, Spring-Summer collection, optical stripe illusion 01.jpg|w|archive-gaultier|50.5,5,93|classic,edgy|4|jackets/blazer.slim.grey=Op-art striped jacket;pants/tailored.slim.grey=Op-art striped trousers
+arch-jpg-madmax|Mad Max bodysuit designed by Jean-Paul Gaultier, Fall-Winter 1995 01.jpg|w|archive-gaultier|49.5,3.5,96.5|edgy,sporty|3|dresses/jumpsuit.slim.red=Dot-print Mad Max catsuit
+
+# ── Street style — Paris Fashion Week, Autumn/Winter 2019 (CC BY-SA 4.0) ──────
+st-paris19-bryanboy|Bryanboy Paris Fashion Week Autumn Winter 2019.jpg|m|street-paris-aw19|56.5,18.5,100|edgy,romantic|3|jackets/coat.baggy.white=Toile-embroidered white coat;accessories/sunglasses.regular.grey=Silver mirrored aviators
+st-paris19-alt|Emmanuelle Alt Paris Fashion Week Autumn Winter 2019.jpg|w|street-paris-aw19|52,13.5,93.5|edgy,minimal|2|jackets/leather.regular.black=Black leather biker jacket;pants/tailored.baggy.black=Black pleated slouch trousers;shoes/sneakers.regular.white=White canvas sneakers
+st-paris19-adr|Anna Dello Russo Paris Fashion Week Autumn Winter 2019.jpg|w|street-paris-aw19|55,12,100|classic,edgy|4|jackets/coat.slim.black=Black sculpted wool coat;accessories/hat.regular.black=Black wide-brim hat
+st-paris19-chen|Eva Chen Paris Fashion Week Autumn Winter 2019.jpg|w|street-paris-aw19|49,13,100|minimal,classic|4|jackets/vest.slim.white=White tailored vest with tie sleeves;skirts/midi.slim.white=White slit pencil skirt
+st-paris19-menkes|Suzy Menkes Paris Fashion Week Autumn Winter 2019.jpg|w|street-paris-aw19|50.5,18,86|classic,romantic|3|jackets/coat.regular.pink=Coral wool cocoon coat;accessories/bag.regular.burgundy=Burgundy leather tote@38-70,66,1.3
+
+# ── Street style — Paris Haute Couture week 2012 (CC BY 3.0) ──────────────────
+st-hc12-mustaparta|Hanneli Mustaparta during Paris Haute Couture Shows 2012 (1).jpg|w|street-paris-hc12|50,2.5,97.5|minimal,relaxed|2|shirts.regular.pale-blue=Periwinkle band-collar shirt;pants/shorts.slim.navy=Navy paisley shorts;shoes/heels.regular.beige=Nude block-heel sandals;accessories/bag.regular.burgundy=Burgundy leather bowling bag@60-82,61
