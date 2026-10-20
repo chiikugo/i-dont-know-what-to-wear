@@ -1,0 +1,154 @@
+<!doctype html>
+<!--
+  The Privacy Policy — a plain HTML page (works with JavaScript off).
+  Every %SITE_…% below is filled in from src/site.ts when the site is built
+  (see the `siteFacts` plugin in vite.config.ts). Edit the WORDING here; edit
+  the name / contact email / URL in src/site.ts.
+  This is a good-faith description of what the code actually does. It is not
+  legal advice — if you publish widely or commercially, have it reviewed.
+-->
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' https:; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy · What to Wear</title>
+    <meta name="description" content="How What to Wear handles your data, and how it uses Pinterest." />
+    <meta name="theme-color" content="#f6f1ea" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" crossorigin href="/i-dont-know-what-to-wear/assets/legal-C_HyteMh.css">
+  </head>
+  <body>
+    <main class="legal">
+      <header class="legal-top">
+        <a class="legal-brand" href="/i-dont-know-what-to-wear/">What to Wear</a>
+        <nav class="legal-nav" aria-label="Site">
+          <a href="/i-dont-know-what-to-wear/">Home</a>
+          <a href="/i-dont-know-what-to-wear/#/about">About</a>
+          <a href="/i-dont-know-what-to-wear/privacy/" aria-current="page">Privacy</a>
+          <a href="/i-dont-know-what-to-wear/terms/">Terms</a>
+        </nav>
+      </header>
+
+      <h1>Privacy Policy</h1>
+      <p class="legal-date">Last updated 14 October 2026</p>
+
+      <p>
+        What to Wear (<a href="https://chiikugo.github.io/i-dont-know-what-to-wear">https://chiikugo.github.io/i-dont-know-what-to-wear</a>) is a personal fashion website run by Chiku Okechukwu. It helps you
+        build outfits from real runway looks and shows the newest looks from fashion publishers, museums and Pinterest. This
+        policy explains, in plain language, what information the site handles and why. Contact: <a href="mailto:chikunwenyi@gmail.com">chikunwenyi@gmail.com</a>.
+      </p>
+
+      <div class="legal-summary">
+        <ul>
+          <li>No accounts, no names, no email addresses, no passwords, no payment details.</li>
+          <li>No advertising, no analytics, no tracking pixels, and we never sell or share personal data.</li>
+          <li>Your outfits and taste are stored in <strong>your own browser</strong>; cloud sync (if switched on) uses an anonymous ID.</li>
+          <li>Pinterest content is read live through Pinterest’s official API, shown with a link back to Pinterest, and never stored.</li>
+        </ul>
+      </div>
+
+      <h2>1. What is stored on your device</h2>
+      <p>The site saves these in your browser’s local storage so it remembers you between visits. They never leave your device unless cloud sync is on (section 2):</p>
+      <ul>
+        <li>whether you chose menswear or womenswear;</li>
+        <li>the outfit you are building and the looks you save to your Closet;</li>
+        <li>what the taste model (“Muse”) has learned — a list of simple labels such as “baggy fit: liked” with a weight;</li>
+        <li>the posts you marked “not for me”, and small display preferences (for example, whether the home page scrolls by itself).</li>
+      </ul>
+      <p>You can delete all of this at any time: use <strong>“Clear this device’s data”</strong> on the <a href="/i-dont-know-what-to-wear/#/about">About page</a>, or clear this site’s data in your browser settings.</p>
+
+      <h2>2. What is stored in the cloud (only if sync is on)</h2>
+      <p>
+        If the site’s optional cloud sync is enabled, your browser is signed in to our database (Supabase) as an
+        <strong>anonymous</strong> user — a random ID with no name or email attached. Two things are then stored:
+      </p>
+      <table>
+        <thead>
+          <tr><th>What</th><th>Why</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Looks you save (the pieces, a generated name, dates)</td><td>So your Closet is kept safe and survives a browser refresh. Only your anonymous ID can read them — database rules (“row-level security”) block everyone else.</td></tr>
+          <tr><td>Anonymous taste signals (labels like “minimal style” with yes/no)</td><td>To show “popular right now” across everyone, counted only for labels at least three different people produced. You can switch this off in the Muse panel (“Contribute anonymous picks”).</td></tr>
+        </tbody>
+      </table>
+      <p>
+        This data is stored by Supabase in the United States (Amazon Web Services, us-east-1). It is kept until you ask us to delete it (contact <a href="mailto:chikunwenyi@gmail.com">chikunwenyi@gmail.com</a>), or
+        until the anonymous account is cleaned up. Clearing your browser’s data creates a new anonymous ID; the old data can then
+        no longer be reached from your browser.
+      </p>
+
+      <h2>3. How the site uses Pinterest</h2>
+      <p>The home page shows fashion pins from Pinterest in two ways:</p>
+      <ul>
+        <li>
+          <strong>The site owner’s own boards</strong>, read through the official Pinterest API (v5). The site owner — and only
+          the site owner — connected their own Pinterest account with Pinterest’s standard OAuth sign-in, granting
+          <strong>read-only</strong> access (<code>boards:read</code>, <code>pins:read</code>, <code>user_accounts:read</code>). Visitors
+          never sign in to Pinterest here, and the site cannot act on anyone’s Pinterest account: it never creates, saves,
+          edits or deletes pins or boards.
+        </li>
+        <li><strong>Public Pinterest profile feeds</strong> of fashion houses and magazines (for example Dior, Prada, Vogue), which Pinterest publishes openly.</li>
+      </ul>
+      <p>What happens to that Pinterest content:</p>
+      <ul>
+        <li>Pins are requested <strong>live</strong> each time the feed refreshes. To avoid sending Pinterest the same request over and over, a copy is held in the server’s memory for at most five minutes; it is <strong>never written to a database</strong> or kept longer.</li>
+        <li>Every pin is labelled as coming from Pinterest and links back to the original pin on Pinterest. Pins are shown as they are — not cropped, filtered or covered.</li>
+        <li>Pinterest content is never sold, shared with anyone, used for advertising, or used to train AI or machine-learning models.</li>
+        <li>
+          The access and refresh tokens Pinterest issues for the owner’s connection are stored securely on the server
+          (Supabase), never in the web page, and used only to read the owner’s boards. The owner can revoke access at any time from
+          the list of connected apps in their Pinterest settings, after which the site deletes the tokens.
+        </li>
+      </ul>
+
+      <h2>4. Other services your browser talks to</h2>
+      <p>The site shows pictures and films straight from where they are published instead of copying them. When your browser loads them, those services receive the usual technical information any website gets (your IP address and browser type) and their own privacy policies apply:</p>
+      <ul>
+        <li><strong>Hosting:</strong> Firebase Hosting (Google), which keeps short-lived server logs for security and reliability.</li>
+        <li><strong>Fonts:</strong> Google Fonts.</li>
+        <li><strong>Pictures:</strong> Wikimedia Commons, Openverse, Pinterest, Condé Nast (Vogue, GQ), Hearst (Harper’s Bazaar, ELLE), W, Hypebeast, Dazed and the Victoria and Albert Museum.</li>
+        <li><strong>Show films:</strong> YouTube, through its privacy-enhanced player (youtube-nocookie.com), loaded only when you press play.</li>
+        <li><strong>Feeds:</strong> our small server function on Supabase reads publishers’ public feeds on the site’s behalf. It receives your request (and therefore your IP address) but stores nothing.</li>
+      </ul>
+
+      <h2>5. Cookies and tracking</h2>
+      <p>
+        The site sets no cookies of its own and uses no analytics, advertising or tracking. If cloud sync is on, Supabase keeps
+        an anonymous sign-in session in your browser’s storage so your Closet stays connected. A YouTube film you choose to play
+        may store data under YouTube’s policy.
+      </p>
+
+      <h2>6. Children</h2>
+      <p>The site is not directed at children under 13, and we do not knowingly collect information from them.</p>
+
+      <h2>7. Your choices and rights</h2>
+      <ul>
+        <li>Delete everything on your device: “Clear this device’s data” on the <a href="/i-dont-know-what-to-wear/#/about">About page</a>.</li>
+        <li>Stop sharing anonymous taste signals: switch off “Contribute anonymous picks” in the Muse panel.</li>
+        <li>Ask for a copy, correction or deletion of any synced data, or object to its use: contact <a href="mailto:chikunwenyi@gmail.com">chikunwenyi@gmail.com</a>. Depending on where you live (for example under the GDPR, UK GDPR or California law) you have these rights by law; we honour them for everyone.</li>
+      </ul>
+
+      <h2>8. Security</h2>
+      <p>
+        The site is served only over HTTPS. Database access is limited by row-level security so each anonymous user can reach
+        only their own rows. No secret keys are ever included in the web page.
+      </p>
+
+      <h2>9. Where data is processed</h2>
+      <p>Our service providers (Google/Firebase and Supabase) may process data in the United States and other countries, under their own safeguards.</p>
+
+      <h2>10. Changes to this policy</h2>
+      <p>If this policy changes, the new version will be posted here with a new “last updated” date.</p>
+
+      <h2>11. Contact</h2>
+      <p>Questions or requests about privacy: <a href="mailto:chikunwenyi@gmail.com">chikunwenyi@gmail.com</a>.</p>
+
+      <p class="legal-foot">
+        <a href="/i-dont-know-what-to-wear/">Back to What to Wear</a> · <a href="/i-dont-know-what-to-wear/terms/">Terms of Service</a>
+      </p>
+    </main>
+  </body>
+</html>
